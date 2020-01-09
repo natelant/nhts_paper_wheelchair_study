@@ -1,5 +1,6 @@
 # building a grid to count trips
 library(nhts2017)
+library(tidyverse)
 
 # take the data from the .rds file created in cleaning.R
 # Creating variables and filtering the persons population
