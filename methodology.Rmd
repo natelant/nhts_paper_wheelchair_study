@@ -1,0 +1,24 @@
+---
+title: "Methodology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# install.packages("devtools")
+# devtools::install_github("byu-transpolab/nhts2017")
+library(nhts2017)
+library(tidyverse)
+```
+
+
+This section describes the data taken from the 2017 NHTS, the variables in the model, the respective 
+distribution of each population, the
+
+
+```{r table}
+# This table shows all the variables useful for the regression model and shows the distribution for each 
+# population
+
+```

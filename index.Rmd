@@ -1,0 +1,19 @@
+---
+title: "Introduction"
+bibliography: 
+---
+
+Cities across the world are concerned with understanding and forecasting the impacts of modern mobility systems. Systems such as ridehailing via Transportation Network Companies (TNC), flexible route transit systems, on-demand carpool services, autonomous vehicles, and others promise to greatly improve, or at least transform, urban mobility throughout the 21st century.
+
+### Accessibility
+Ideally, these modern systems of transporation are accessible to all users, but someone with a mechanical wheelchair can't hail a ride on-demand. Individuals who are physically disabled have reported difficulties using many of these systems [@Bascom2017]. Because of gaps in accessibility, transporation agencies are beginning to explore methods of improving these systems for all users. In Salt Lake City, the Utah Transit Authority has lauched pilots with Lyft and with Via in attempt to offer wheelchair-dependent individuals the opportunity to hail a wheechair-accessibile vehicle (WAV).
+
+### Challenges
+Programs like the ones proposed by UTA with Lyft or Via face many legal and regulatory challenges, but they also face technical challenges related to understanding the relationship between supply and demand.  What, for example, is the likely relationship between fleet size, fare, and level of service? A larger fleet will serve requests more quickly, but might be too expensive to operate. A smaller fleet might be too inconvenient for anyone to rely on for daily travel. These questions and many others have motivated research into understanding how mobility patterns are different becuase of disability.
+
+### Data
+This study analyzes the responses from the 2017 National Household Travel Survey (NHTS) to understand how mobility patterns of wheelchair-dependent individuals are different from those of the abled population.
+
+The R library `nhts2017` has the [2017 NHTS results](https://github.com/byu-transpolab/nhts2017) built in. The documentation is provided by the official [NHTS website](https://nhts.ornl.gov/documentation).
+
+### References
