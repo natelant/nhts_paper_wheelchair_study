@@ -3,6 +3,12 @@
 # library(nhts2017)
 # library(tidyverse)
 
+# start with slightly formatting the trips file
+# then join it to persons
+nhts_trips <- nhts_trips %>% 
+  mutate(hhpersonid = paste(houseid, personid, sep = "-"),
+         trpmiles = as.double(trpmiles))
+
 # Edit the persons file by creating new variables mixed with household data
 # then write into an .rds file and stores in data folder
 nhts_persons %>%
@@ -10,6 +16,7 @@ nhts_persons %>%
               # I only need a couple variables from the household file
               select(houseid, hhfaminc, hhstate), 
             by = "houseid") %>%
+  
   # Organize the categorical variables
   mutate(
     # create a unique id for every individual
@@ -57,7 +64,7 @@ nhts_persons %>%
     # by filtering out Ability "NA", I exclude 1931 / 264233 respondents (0.73%)
     Ability != "NA",
     Income != "NA",
-    Worker != "NA"
+    Worker != "NA",
          ) %>%
   
   # write into an .rds file

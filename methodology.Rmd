@@ -18,7 +18,12 @@ distribution of each population, the
 
 
 ```{r table}
-# This table shows all the variables useful for the regression model and shows the distribution for each 
-# population
+# This table will show all the variables useful for the regression model and show the distribution for each 
+# of the populations: Abled, Disabled, Wheelchair
 
+# the final.rds data has the full grid with all of the trip purpose tally per person (in addition to the 
+# entire persons attribute file)
+data <- read_rds("data/final.rds")
+
+data %>% 
 ```
