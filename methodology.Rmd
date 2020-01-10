@@ -10,6 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 # devtools::install_github("byu-transpolab/nhts2017")
 library(nhts2017)
 library(tidyverse)
+library(scales)
+
+# for help understanding the kableExtra library 
+# (https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
+# there may be some issues with this table going to html vs pdf and latex
+library(kableExtra)
+
+library(Stack)
 ```
 
 
@@ -17,13 +25,113 @@ This section describes the data taken from the 2017 NHTS, the variables in the m
 distribution of each population, the
 
 
-```{r table}
+```{r testing}
+# testing the kable function
+# this allows groups to be made in rows
+mtcars
+kable(mtcars[1:10, 1:6], caption = "Group Rows") %>%
+  kable_styling("striped", full_width = F) %>%
+  pack_rows("Group 1", 4, 7) %>%
+  pack_rows("Group 2", 8, 10)
+
+
+# testing the stack function to literally stack the tables.
+stackdf1 <- data.frame(both.int=1:4,
+                      expand.factor=c("blue", "yellow"),
+                      mixed.fac.int=factor(letters[1:4]),
+                      date=as.Date("1983-11-22"),
+                      df1only=rep(1:2, each=2),
+                      mixed.fac.chr=I(c("a","b","NA",NA)))
+stackdf2 <- data.frame(both.int=5:24,
+                      expand.factor=factor(rep(c(1:4, NA), 4)),
+                      mixed.fac.int=1:4,
+                      date=as.Date("1981-09-24"),
+                      df2only=factor(c("c", "d")),
+                      mixed.fac.chr=c("a","b",NA,"c"))
+
+Stack(stackdf1,stackdf2)
+
+
+```
+
+```{r code.table}
 # This table will show all the variables useful for the regression model and show the distribution for each 
 # of the populations: Abled, Disabled, Wheelchair
 
 # the final.rds data has the full grid with all of the trip purpose tally per person (in addition to the 
 # entire persons attribute file)
-data <- read_rds("data/final.rds")
+my_data <- read_rds("data/nhts_data.rds")
 
-data %>% 
+
+# build table of age distribution with totals in columns not rows.
+age_table <- my_data %>% 
+  filter(Ability != "NA", 
+         Age != "NA") %>%
+  # Calculate number of people in each combination of age and ability.
+  group_by(Ability, Age) %>%
+  summarise(population = sum(wtperfin)) %>%
+  mutate(Population = population,
+        `Distribution(%)` = 
+           percent(population/sum(population), 
+                   accuracy = 0.1),
+        Variable = Age) %>%
+  select(Ability, Variable, `Distribution(%)`) %>%
+  spread(Ability, `Distribution(%)`)
+
+income_table <- my_data %>% 
+  filter(Ability != "NA", 
+         Income != "NA") %>%
+  # Calculate number of people in each combination of income and ability.
+  group_by(Ability, Income) %>%
+  summarise(population = sum(wtperfin)) %>%
+  mutate(Population = population,
+        `Distribution(%)` = 
+          percent(population/sum(population), 
+                   accuracy = 0.1),
+        Variable = as.character(Income)) %>%
+  select(Ability, Variable, `Distribution(%)`) %>%
+  spread(Ability, `Distribution(%)`)
+
+Stack(age_table, income_table) %>% as_tibble()
+
+```
+
+```{r function}
+distributions <- function(data, variable){
+  
+  quote_var <- enquo(variable)
+  
+  data %>% 
+  filter(Ability != "NA", 
+         !!quote_var != "NA") %>%
+  # Calculate number of people in each combination of income and ability.
+  group_by(Ability, !!quote_var) %>%
+  summarise(population = sum(wtperfin)) %>%
+  mutate(Population = population,
+        `Distribution(%)` = 
+          percent(population/sum(population), 
+                   accuracy = 0.1),
+        Variable = as.character(!!quote_var)) %>%
+  select(Ability, Variable, `Distribution(%)`) %>%
+  spread(Ability, `Distribution(%)`)
+  
+}
+```
+
+```{r build.table}
+age <- distributions(my_nhts, Age)
+income <- distributions(my_nhts, Income)
+work <- distributions(my_nhts, Worker)
+
+# now the stacking part. only one at a time please :)
+Stack(age, income) %>% 
+  Stack(work) %>%
+  
+  # pipe into the kable function
+  kable(caption = "Data Distribution") %>%
+  kable_styling("striped", full_width = F) %>%
+  pack_rows("Age", 1, 10) %>%
+  pack_rows("Income", 11, 14) %>%
+  pack_rows("Worker Status", 15, 17)
+
 ```
