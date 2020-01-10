@@ -26,18 +26,18 @@ my_nhts <- nhts_persons %>%
             by = "houseid") %>%
   # because households doesn't have a personid, i join persons-households first, then I can 
   # create the hhpersonid to join with trips.
-  mutate(hhpersonid = paste(houseid, personid, sep = "-")) %>%
+  # mutate(hhpersonid = paste(houseid, personid, sep = "-")) %>%
   # now I can join with trips
   left_join(nhts_trips %>%
               # mutate first, so that i can exclude the houseid and personid when I join with persons
               mutate(
-                hhpersonid = paste(houseid, personid, sep = "-"),
+                # hhpersonid = paste(houseid, personid, sep = "-"),
                 trpmiles = as.double(trpmiles),
-                trip_ID = paste(hhpersonid, tdtrpnum, sep = "-")
+                # trip_ID = paste(hhpersonid, tdtrpnum, sep = "-")
                      ) %>%
-              select(hhpersonid, tdtrpnum, trptrans, trvlcmin, trpmiles, psgr_flg, trip_ID),
+              select(houseid, personid, tdtrpnum, trptrans, trvlcmin, trpmiles, psgr_flg, trippurp),
             # maybe i will need to filter the trip data (miles > 0, exclude the -9s and -1s and stuff)
-            by = "hhpersonid") %>%
+            by = c("houseid", "personid")) %>%
   
   
   # This is the MUTATE section where new variables are created.
@@ -121,6 +121,7 @@ my_trips <- nhts_trips %>%
   # make a count of repeating person/trip purpose combinations. For example, how many times did
   # 300...07-01 make an HBO trip.
   tally() %>%
+  ungroup() %>%
   # anything bigger than 10 trips will be counted as 10 trips.
   mutate(n = ifelse(n > 10, 10, n))
 
@@ -139,14 +140,14 @@ my_grid <- expand_grid(
 # this new data set has over 1 million rows. each row is a trip purpose per person and has all of the 
 # person data attached with it.
 # n is the number of trips for a specific person and purpose
-my_trips %>% 
+try <- my_trips %>% 
   right_join(my_grid) %>%
   # if no trips were taken show they took 0 trips
   mutate(n = ifelse(is.na(n), 0, n)) %>%
   # add all of the person data (including Ability, Age, Worker, Income groups etc.)
   # this data set is over 4 million rows deep.
   # it doubles each person and trip purpose combo because there are two trip miles values per trip
-  left_join(my_nhts, "hhpersonid") %>%
+  right_join(my_nhts, "hhpersonid")
   
   
   write_rds("data/combined.rds")
