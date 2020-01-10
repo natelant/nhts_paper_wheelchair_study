@@ -32,9 +32,10 @@ my_nhts <- nhts_persons %>%
               # mutate first, so that i can exclude the houseid and personid when I join with persons
               mutate(
                 hhpersonid = paste(houseid, personid, sep = "-"),
-                trpmiles = as.double(trpmiles)
+                trpmiles = as.double(trpmiles),
+                trip_ID = paste(hhpersonid, tdtrpnum, sep = "-")
                      ) %>%
-              select(hhpersonid, trippurp, trptrans, psgr_flg),
+              select(hhpersonid, tdtrpnum, trptrans, trvlcmin, trpmiles, psgr_flg, trip_ID),
             # maybe i will need to filter the trip data (miles > 0, exclude the -9s and -1s and stuff)
             by = "hhpersonid") %>%
   
