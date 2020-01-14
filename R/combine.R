@@ -42,6 +42,9 @@ my_nhts <- nhts_persons %>%
   
   # This is the MUTATE section where new variables are created.
   mutate(
+    # after all the joining is complete, use a combined house-person ID for ease
+    hhpersonid = paste(houseid, personid, sep = "-"),
+    
     # labels every individual as wheelchair, disabled, or abled
     Ability = case_when(w_chair == "07" | w_mtrchr == "08" ~ "Wheelchair",
                         medcond6 == "02" | medcond6 == "03" ~ "Disabled",
