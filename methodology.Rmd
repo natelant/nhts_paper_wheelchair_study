@@ -35,7 +35,7 @@ distributions <- function(data, variable){
         `Distribution(%)` = 
           percent(population/sum(population), 
                    accuracy = 0.1),
-        Variable = as.character(!!quote_var)) %>%
+        Variable = as.factor(!!quote_var)) %>%
   select(Ability, Variable, `Distribution(%)`) %>%
   spread(Ability, `Distribution(%)`)
   
@@ -45,7 +45,7 @@ distributions <- function(data, variable){
 This section describes the data taken from the 2017 NHTS, the variables in the model, the respective 
 distribution of each population, the
 
-
+## Data and Data Description
 
 ```{r code.table}
 # This table will show all the variables useful for the regression model and show the distribution for each 
@@ -53,21 +53,61 @@ distribution of each population, the
 
 # the final.rds data has the full grid with all of the trip purpose tally per person (in addition to the 
 # entire persons attribute file)
-my_data <- read_rds("data/nhts_data.rds")
+my_nhts <- read_rds("data/nhts_data.rds")
 
+# use the distribution function built for this project
 age <- distributions(my_nhts, Age)
+income.actual <- distributions(my_nhts, hhfaminc)
 income <- distributions(my_nhts, Income)
 work <- distributions(my_nhts, Worker)
+mode <- distributions(my_nhts, Mode)
+
 
 # now the stacking part. only one at a time please :)
 Stack(age, income) %>% 
   Stack(work) %>%
+  Stack(mode) %>%
+  
   
   # pipe into the kable function
-  kable(caption = "Data Distribution") %>%
+  kable(caption = " 2017 NHTS Data Distribution") %>%
   kable_styling("striped", full_width = F) %>%
+  # Specify which row numbers are grouped together (i.e. from 1, to 10)
   pack_rows("Age", 1, 10) %>%
-  pack_rows("Income", 11, 14) %>%
-  pack_rows("Worker Status", 15, 17)
+  pack_rows("Income Group", 11, 14) %>%
+  pack_rows("Worker Status", 15, 17) %>%
+  pack_rows("Mode Choice", 18, 26)
 ```
 
+## Poisson Regression of Daily Trips
+
+```{r grid}
+
+expand_grid(
+  # uses only the unique hhpersonids found in the new_trips data
+  hhpersonid = unique(my_nhts$hhpersonid), 
+  # uses only HBO, HBW, HBSOCREC, NHB, and HBSOP
+  trippurp = unique(my_nhts$trippurp)
+) %>%
+  
+filter(trippurp != "-9") %>%
+  
+  # now try joining it
+left_join(
+    my_nhts %>%
+      group_by(hhpersonid, trippurp) %>%
+      tally() %>%
+      mutate(n = ifelse(n > 10, 10, n)
+         ),
+    by = c("hhpersonid", "trippurp")
+) %>%
+  
+  # change the NAs to 0s
+mutate(n = ifelse(is.na(n), 0, n)) %>%
+             
+# i need to join this with persons information then I can perform the regression
+  
+# From this point there are attributes associated with each trip (length, mode)
+left_join(my_nhts)
+
+```
