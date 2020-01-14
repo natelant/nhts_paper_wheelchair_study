@@ -1,7 +1,13 @@
 ---
 title: "Introduction"
-bibliography: 
+bibliography: biblio.bib
 ---
+
+<!--- What is currently transporation for the disabled?
+
+
+
+---->
 
 Cities across the world are concerned with understanding and forecasting the impacts of modern mobility systems. Systems such as ridehailing via Transportation Network Companies (TNC), flexible route transit systems, on-demand carpool services, autonomous vehicles, and others promise to greatly improve, or at least transform, urban mobility throughout the 21st century.
 
