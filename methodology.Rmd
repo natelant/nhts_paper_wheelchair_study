@@ -107,7 +107,9 @@ mutate(n = ifelse(is.na(n), 0, n)) %>%
              
 # i need to join this with persons information then I can perform the regression
   
-# From this point there are attributes associated with each trip (length, mode)
+# From this point there are attributes associated with each trip (length, mode).
+# so if there are trips taken then n is repeated so that each trip can have specific 
+# attribute data attached.
 left_join(my_nhts)
 
 ```
