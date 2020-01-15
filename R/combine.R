@@ -22,8 +22,8 @@ library(tidyverse)
 # then write into an .rds file and store in data folder
 
 
-my_nhts <- nhts_persons %>%
-  select(houseid, personid, w_chair, w_mtrchr, medcond6, medcond, r_age, wkftpt, wtperfin) %>%
+nhts_persons %>%
+  select(houseid, personid, w_chair, w_mtrchr, w_scootr, medcond6, medcond, r_age, wkftpt, wtperfin) %>%
   left_join(nhts_households %>% 
               # I only need a couple variables from the household file
               select(houseid, hhfaminc, hhstate), 
@@ -46,8 +46,8 @@ my_nhts <- nhts_persons %>%
     hhpersonid = paste(houseid, personid, sep = "-"),
     
     # labels every individual as wheelchair, disabled, or abled
-    Ability = case_when(w_chair == "07" | w_mtrchr == "08" ~ "Wheelchair",
-                        medcond6 == "02" | medcond6 == "03" ~ "Disabled",
+    Ability = case_when(w_chair == "07" | w_mtrchr == "08" | w_scootr == "06" ~ "Wheelchair",
+                        medcond == "01" ~ "Disabled",  
                         medcond == "02" ~ "Abled"
                         ),
     # groups ages into bins

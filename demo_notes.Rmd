@@ -2,13 +2,21 @@
 title: "notes"
 author: "Nate Lant"
 date: "1/14/2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 Just looking at the introductions...
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(nhts2017)
+library(scales)
+
+my_nhts <- read_rds("data/nhts_data.rds")
 ```
 
 ## TNC's and Disabled Access (SF)
@@ -68,25 +76,51 @@ In other communities, like Chicago, the presence of UberWAV (Wheelchair Accessib
 
 
 ## Travel Patterns of American Adults with Disabilities
+An estimated 25.5 million Americans have disabilities that make traveling outside the home difficult. They accounted for 8.5 percent of the population age 5 and older in 2017. An estimated 13.4 million of these Americans—more than half—are adults age 18 to 64, the age group with typically high labor force participation. 4.3 million Americans use some kind of wheelchair (manual, mechanical or an electric scooter). The NHTS also does not include people living in nursing homes or other group quarters.
+
+```{r wheelchair}
+nhts_persons %>% 
+  filter(r_age > 5) %>%
+  mutate(test.ability = 
+           case_when(
+               w_chair == "07" | w_mtrchr == "08" | w_scootr == "06" ~ "Wheelchair",
+               medcond == "01" ~ "Disabled",  
+               medcond == "02" ~ "Abled")
+           ) %>% 
+  
+  group_by(test.ability) %>%
+  summarise(Survey = n(),
+            population = sum(wtperfin)) %>%
+  mutate(Population = population,
+         `Distribution(%)` = 
+           percent(population/sum(population), accuracy = 0.1)) %>%
+  select(-population)
+
+```
+
 
 
 ## Intelligent Paratransit
+Residents of cities who are physically unable to use public transportation, including the disabled and mobility-
+impaired elderly, are offered car or van rides by paratransit services. Required by an unfunded 1990 Americans 
+with Disabilities Act mandate (https: //www.law.cornell.edu/cfr/text /49/37.21), paratransit systems are enormous: in New York City, paratransit serves 144,000 subscribers at \$456 million per year; in the Chicago region, 50,000 subscribers are served at \$137 million per year; in Boston, 80,000 at \$75 million per year. These operations grow annually with new registrations and costs. Furthermore, their rides are reportedly poor experiences ().
 
 ## Impacts of limited acces (Bascom and Christensen)
+In order for individuals to obtain employment, goods and services, healthcare, education, and interact socially, access to trans-
+portation is critical (Cassas, 2007; Preston and Raje, 2008) For example, a lack of access to transportation not only limits access to employment opportunities, but can also make it more difficult to find employment by limiting access to employment center and interview locations (Kenyon et al., 2002; Department of Environment Transport and the Regions, 2000). Similarly, healthcare and education are often not equally distributed in a community, making access difficult for individuals who do not live near these services (Martens, 2012)
 
 ## Strategic Plan 2019-2022
+Personal mobility is essential to the success of America’s citizens, communities, and economy. Transportation enables mobility by connecting individuals to their homes, jobs, and communities. Despite its significance, millions of Americans lack access to reliable transportation due to disability, income, or age. Inadequate transportation limits the mobility of these individuals and prevents them from accessing jobs, medical care, healthy food, education, social services, and other community activities.
 
 ## Policies and Practices for  Meeting ADA Paratransit Demand
+Although paratransit ridership is slightly more than 1% of the total transit ridership, paratransit costs comprised 9% of transit operating costs; therefore, efficiencies are needed to address the ever- increasing costs of meeting the civil rights requirements of the Americans with Disabilities Act (ADA) for paratransit service. From 1992—the first year of ADA-complementary paratransit service—to 2004, paratransit ridership in the United States increased by 58.3%, to more than 114 million trips, most of which were ADA-complementary paratransit trips. In addition, the operating cost per trip for paratransit service was \$22.14, whereas for all other modes, the operating cost per trip was \$2.75 (per trip costs calculated from APTA data).
+
+Efficiencies are needed to address the ever-increasing cost of meeting the civil rights requirements of the Americans with Disabilities Act (ADA) for paratransit service. An under- lying purpose of the ADA is to provide equal opportunity, full participation, and independence to persons with disabil- ities. Transit
 
 ## Schaller: New Automobility
 People with disabilities are more reliant on for-hire services, in particular taxicabs, than non-disabled persons. While nondisabled people make 4.1 for-hire trips annually, people with disabilities make twice as many trips (8.2 per year). (National data only; sample size too small for geographic detail.) People with disabilities are also more reliant on taxicabs than the general population. People with disabilities take 5.9 taxi trips annually, twice their use of TNCs (2.3 trips per year). 
 
-There is a long history of taxicabs participating in Dial-A-Ride
-programs for seniors and persons with disabilities who lack
-access to a personal car or the financial means to pay for a taxi.
-Public subsidies are needed for patrons to obtain medical care,
-go shopping, socialize at senior centers, attend religious services
-and so forth.
+There is a long history of taxicabs participating in Dial-A-Ride programs for seniors and persons with disabilities who lack access to a personal car or the financial means to pay for a taxi. Public subsidies are needed for patrons to obtain medical care, go shopping, socialize at senior centers, attend religious services and so forth.
 
 #### Case Studies
 Laguna Beach, for example, contracted with Uber to supplement transportation for senior and disabled passengers following curtailments of local bus service. 
@@ -103,4 +137,5 @@ Another example is the transit agency in Las Vegas, Nevada, which began a pilot 
 
 
 ## Use of Taxis in Public Transportation for People with Disabilities and Older Adults (2016)
+Many transit agencies use taxis as part of their required ADA paratransit service and to provide a same-day service that is not a formal part of ADA paratransit service.
 
