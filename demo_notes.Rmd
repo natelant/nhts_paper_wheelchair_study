@@ -115,7 +115,7 @@ Personal mobility is essential to the success of America’s citizens, communiti
 ## Policies and Practices for  Meeting ADA Paratransit Demand
 Although paratransit ridership is slightly more than 1% of the total transit ridership, paratransit costs comprised 9% of transit operating costs; therefore, efficiencies are needed to address the ever- increasing costs of meeting the civil rights requirements of the Americans with Disabilities Act (ADA) for paratransit service. From 1992—the first year of ADA-complementary paratransit service—to 2004, paratransit ridership in the United States increased by 58.3%, to more than 114 million trips, most of which were ADA-complementary paratransit trips. In addition, the operating cost per trip for paratransit service was \$22.14, whereas for all other modes, the operating cost per trip was \$2.75 (per trip costs calculated from APTA data).
 
-Efficiencies are needed to address the ever-increasing cost of meeting the civil rights requirements of the Americans with Disabilities Act (ADA) for paratransit service. An under- lying purpose of the ADA is to provide equal opportunity, full participation, and independence to persons with disabil- ities. Transit
+Efficiencies are needed to address the ever-increasing cost of meeting the civil rights requirements of the Americans with Disabilities Act (ADA) for paratransit service. An underlying purpose of the ADA is to provide equal opportunity, full participation, and independence to persons with disabilities. Transit
 
 ## Schaller: New Automobility
 People with disabilities are more reliant on for-hire services, in particular taxicabs, than non-disabled persons. While nondisabled people make 4.1 for-hire trips annually, people with disabilities make twice as many trips (8.2 per year). (National data only; sample size too small for geographic detail.) People with disabilities are also more reliant on taxicabs than the general population. People with disabilities take 5.9 taxi trips annually, twice their use of TNCs (2.3 trips per year). 
@@ -133,7 +133,7 @@ Via is developing with the city of Berlin, Germany a van service that complement
 
 TNCs have recently started to participate in programs that supplement ADA paratransit. A prime example is the pilot by the Boston area transit agency (MBTA) that involves Uber, Lyft and other companies. ADA paratransit users are offered the option of using one of these three companies instead of the regular ADA service. They can make same-day reservations instead of having to call a day or more in advance. Riders pay the same \$2 fare and any amount over \$15 (making for a subsidy of up to \$13 per trip). Lyft provides a call center under its Lyft Concierge program, while Uber addressed smartphone issues by giving away smartphones to some users. 
 
-Another example is the transit agency in Las Vegas, Nevada, which began a pilot earlier this year with Lyft to provide ondemand paratransit service.
+Another example is the transit agency in Las Vegas, Nevada, which began a pilot earlier this year with Lyft to provide on-demand paratransit service.
 
 
 ## Use of Taxis in Public Transportation for People with Disabilities and Older Adults (2016)
