@@ -94,7 +94,7 @@ nhts_persons %>%
   mutate(Population = population,
          `Distribution(%)` = 
            percent(population/sum(population), accuracy = 0.1)) %>%
-  select(-population)
+  select(-population) 
 
 ```
 

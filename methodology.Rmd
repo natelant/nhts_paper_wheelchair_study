@@ -1,9 +1,15 @@
 ---
 title: "Methodology"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
 ---
+The NHTS asks respondents if they have “a temporary or permanent condition or handicap that makes it difficult to travel outside of the home.” If they respond yes, the NHTS asks follow- up questions about the mobility devices they use, such as canes or wheelchairs. It also asks follow-up questions about how the condition affects their travel—for example, by limiting their driving to daytime. For the rest of this report, “people with disabilities” refers to people who report having travel-limiting disabilities [@Brumbaugh2018].
 
-```{r setup, include=FALSE}
+In this study, the population was divided into three groups: Disabled individuals who reported using a wheelchair (either mechanical, manual or both) or scooter are labeled *"Wheelchair"*; disabled individuals (excluding those who use a wheelchair or scooter) are labeled *"Disabled"*; and the general population who did not report a "travel-limiting" disability are labeled *"Abled"*.
+
+
+```{r setup, message=F}
 knitr::opts_chunk$set(echo = TRUE)
 
 # install.packages("devtools")
@@ -11,16 +17,18 @@ knitr::opts_chunk$set(echo = TRUE)
 library(nhts2017)
 library(tidyverse)
 library(scales)
+library(pander)
 
 # for help understanding the kableExtra library 
 # (https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
 # there may be some issues with this table going to html vs pdf and latex
 library(kableExtra)
-
 library(Stack)
 ```
 
-```{r function, include=F}
+```{r function}
+# This function is designed to create a table of distributions by ability type for each factor in 
+# a variable (i.e. income, age, worker status etc.)
 distributions <- function(data, variable){
   
   quote_var <- enquo(variable)
@@ -42,12 +50,34 @@ distributions <- function(data, variable){
 }
 ```
 
-This section describes the data taken from the 2017 NHTS, the variables in the model, the respective 
-distribution of each population, the
+```{r wheelchair, fig.align='center'}
+# This table shows the general population distribution, the number of respondents, and the respective
+# distribution.
+nhts_persons %>% 
+  filter(r_age > 5) %>%
+  mutate(Ability = 
+           case_when(
+               w_chair == "07" | w_mtrchr == "08" | w_scootr == "06" ~ "Wheelchair",
+               medcond == "01" ~ "Disabled",  
+               medcond == "02" ~ "Abled")
+           ) %>% 
+  
+  group_by(Ability) %>%
+  summarise(Survey = n(),
+            Population = sum(wtperfin)) %>%
+  mutate(Distribution = 
+           percent(Population/sum(Population), accuracy = 0.1)) %>%
+  filter(Ability != "NA") %>%
+  pander()
+
+```
+
 
 ## Data and Data Description
 
-```{r code.table}
+The table below considers variables that are included in the model, as they are probable perameters in influencing trip count by purpose. The table displays the population distribution for each ability group, for example, 49.2% of the "Wheelchair" population is in the Low income group. Then that raises the question, is number of trips more infuenced by income or by ability?
+
+```{r code.table, message=F, warning=F}
 # This table will show all the variables useful for the regression model and show the distribution for each 
 # of the populations: Abled, Disabled, Wheelchair
 
@@ -55,7 +85,7 @@ distribution of each population, the
 # entire persons attribute file)
 my_nhts <- read_rds("data/nhts_data.rds")
 
-# use the distribution function built for this project
+# use the distribution function built for this project to construct the distribution tables
 age <- distributions(my_nhts, Age)
 income.actual <- distributions(my_nhts, hhfaminc)
 income <- distributions(my_nhts, Income)
@@ -81,9 +111,14 @@ Stack(age, income) %>%
 
 ## Poisson Regression of Daily Trips
 
-```{r grid}
+```{r grid, message=F, warning=F}
+# Organize the data so that trips can be counted and zero trips can be accounted for
 
-expand_grid(
+#option to use just person attribute
+persons <- read_rds("data/persons.rds")
+
+# the grid makes it possible to count zero trips
+grid <- expand_grid(
   # uses only the unique hhpersonids found in the new_trips data
   hhpersonid = unique(my_nhts$hhpersonid), 
   # uses only HBO, HBW, HBSOCREC, NHB, and HBSOP
@@ -92,24 +127,38 @@ expand_grid(
   
 filter(trippurp != "-9") %>%
   
-  # now try joining it
+  # now join it with the trip purpose counts
 left_join(
     my_nhts %>%
       group_by(hhpersonid, trippurp) %>%
+      # count the trips by purpose for each person
       tally() %>%
       mutate(n = ifelse(n > 10, 10, n)
          ),
     by = c("hhpersonid", "trippurp")
 ) %>%
   
-  # change the NAs to 0s
+# change the NAs to 0s
 mutate(n = ifelse(is.na(n), 0, n)) %>%
              
 # i need to join this with persons information then I can perform the regression
-  
+
 # From this point there are attributes associated with each trip (length, mode).
 # so if there are trips taken then n is repeated so that each trip can have specific 
 # attribute data attached.
-left_join(my_nhts)
+# left_join(my_nhts)
+  
+left_join(persons)
+
+# note that when joined with persons you cant use variables such as trip length or mode
+
+```
+
+```{r poisson}
+fit.0 <- glm(n ~ trippurp + Ability + r_age + Income + Worker, family = "poisson", data = grid)
+
+summary(fit.0)
+
+plot(fit.0, 1)
 
 ```
