@@ -1,5 +1,6 @@
 ---
 title: "Methodology"
+bibliography: biblio.bib
 output: 
   html_document:
     code_folding: hide
@@ -26,29 +27,7 @@ library(kableExtra)
 library(Stack)
 ```
 
-```{r function}
-# This function is designed to create a table of distributions by ability type for each factor in 
-# a variable (i.e. income, age, worker status etc.)
-distributions <- function(data, variable){
-  
-  quote_var <- enquo(variable)
-  
-  data %>% 
-  filter(Ability != "NA", 
-         !!quote_var != "NA") %>%
-  # Calculate number of people in each combination of income and ability.
-  group_by(Ability, !!quote_var) %>%
-  summarise(population = sum(wtperfin)) %>%
-  mutate(Population = population,
-        `Distribution(%)` = 
-          percent(population/sum(population), 
-                   accuracy = 0.1),
-        Variable = as.factor(!!quote_var)) %>%
-  select(Ability, Variable, `Distribution(%)`) %>%
-  spread(Ability, `Distribution(%)`)
-  
-}
-```
+
 
 ```{r wheelchair, fig.align='center'}
 # This table shows the general population distribution, the number of respondents, and the respective
@@ -77,6 +56,30 @@ nhts_persons %>%
 
 The table below considers variables that are included in the model, as they are probable perameters in influencing trip count by purpose. The table displays the population distribution for each ability group, for example, 49.2% of the "Wheelchair" population is in the Low income group. Then that raises the question, is number of trips more infuenced by income or by ability?
 
+```{r function}
+# This function is designed to create a table of distributions by ability type for each factor in 
+# a variable (i.e. income, age, worker status etc.)
+distributions <- function(data, variable){
+  
+  quote_var <- enquo(variable)
+  
+  data %>% 
+  filter(Ability != "NA", 
+         !!quote_var != "NA") %>%
+  # Calculate number of people in each combination of income and ability.
+  group_by(Ability, !!quote_var) %>%
+  summarise(population = sum(wtperfin)) %>%
+  mutate(Population = population,
+        `Distribution(%)` = 
+          percent(population/sum(population), 
+                   accuracy = 0.1),
+        Variable = as.factor(!!quote_var)) %>%
+  select(Ability, Variable, `Distribution(%)`) %>%
+  spread(Ability, `Distribution(%)`)
+  
+}
+```
+
 ```{r code.table, message=F, warning=F}
 # This table will show all the variables useful for the regression model and show the distribution for each 
 # of the populations: Abled, Disabled, Wheelchair
@@ -100,7 +103,7 @@ Stack(age, income) %>%
   
   
   # pipe into the kable function
-  kable(caption = " 2017 NHTS Data Distribution") %>%
+  kable(caption = "2017 NHTS Data Distribution") %>%
   kable_styling("striped", full_width = F) %>%
   # Specify which row numbers are grouped together (i.e. from 1, to 10)
   pack_rows("Age", 1, 10) %>%
