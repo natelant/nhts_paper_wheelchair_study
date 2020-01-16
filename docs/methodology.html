@@ -21,6 +21,7 @@
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
@@ -246,6 +247,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -273,10 +277,13 @@ $(document).ready(function () {
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">Home</a>
+  <a href="index.html">Introduction</a>
 </li>
 <li>
-  <a href="about.html">About</a>
+  <a href="literature.html">Literature Review</a>
+</li>
+<li>
+  <a href="methodology.html">Methodology</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -288,6 +295,14 @@ $(document).ready(function () {
 
 <div class="fluid-row" id="header">
 
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">Methodology</h1>
@@ -295,7 +310,100 @@ $(document).ready(function () {
 </div>
 
 
-<p>This section describes the data taken from the 2017 NHTS, the variables in the model, the respective distribution of each population, the</p>
+<p>The NHTS asks respondents if they have “a temporary or permanent condition or handicap that makes it difficult to travel outside of the home.” If they respond yes, the NHTS asks follow- up questions about the mobility devices they use, such as canes or wheelchairs. It also asks follow-up questions about how the condition affects their travel—for example, by limiting their driving to daytime. For the rest of this report, “people with disabilities” refers to people who report having travel-limiting disabilities <span class="citation">[@Brumbaugh2018]</span>.</p>
+<p>In this study, the population was divided into three groups: Disabled individuals who reported using a wheelchair (either mechanical, manual or both) or scooter are labeled <em>“Wheelchair”</em>; disabled individuals (excluding those who use a wheelchair or scooter) are labeled <em>“Disabled”</em>; and the general population who did not report a “travel-limiting” disability are labeled <em>“Abled”</em>.</p>
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
+
+# install.packages(&quot;devtools&quot;)
+# devtools::install_github(&quot;byu-transpolab/nhts2017&quot;)
+library(nhts2017)
+library(tidyverse)
+library(scales)
+library(pander)
+
+# for help understanding the kableExtra library 
+# (https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
+# there may be some issues with this table going to html vs pdf and latex
+library(kableExtra)
+library(Stack)</code></pre>
+<pre class="r"><code># This function is designed to create a table of distributions by ability type for each factor in 
+# a variable (i.e. income, age, worker status etc.)
+distributions &lt;- function(data, variable){
+  
+  quote_var &lt;- enquo(variable)
+  
+  data %&gt;% 
+  filter(Ability != &quot;NA&quot;, 
+         !!quote_var != &quot;NA&quot;) %&gt;%
+  # Calculate number of people in each combination of income and ability.
+  group_by(Ability, !!quote_var) %&gt;%
+  summarise(population = sum(wtperfin)) %&gt;%
+  mutate(Population = population,
+        `Distribution(%)` = 
+          percent(population/sum(population), 
+                   accuracy = 0.1),
+        Variable = as.factor(!!quote_var)) %&gt;%
+  select(Ability, Variable, `Distribution(%)`) %&gt;%
+  spread(Ability, `Distribution(%)`)
+  
+}</code></pre>
+<pre class="r"><code># This table shows the general population distribution, the number of respondents, and the respective
+# distribution.
+nhts_persons %&gt;% 
+  filter(r_age &gt; 5) %&gt;%
+  mutate(Ability = 
+           case_when(
+               w_chair == &quot;07&quot; | w_mtrchr == &quot;08&quot; | w_scootr == &quot;06&quot; ~ &quot;Wheelchair&quot;,
+               medcond == &quot;01&quot; ~ &quot;Disabled&quot;,  
+               medcond == &quot;02&quot; ~ &quot;Abled&quot;)
+           ) %&gt;% 
+  
+  group_by(Ability) %&gt;%
+  summarise(Survey = n(),
+            Population = sum(wtperfin)) %&gt;%
+  mutate(Distribution = 
+           percent(Population/sum(Population), accuracy = 0.1)) %&gt;%
+  filter(Ability != &quot;NA&quot;) %&gt;%
+  pander()</code></pre>
+<table style="width:69%;">
+<colgroup>
+<col width="18%" />
+<col width="12%" />
+<col width="18%" />
+<col width="20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Ability</th>
+<th align="center">Survey</th>
+<th align="center">Population</th>
+<th align="center">Distribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">Abled</td>
+<td align="center">236051</td>
+<td align="center">271384034</td>
+<td align="center">91.4%</td>
+</tr>
+<tr class="even">
+<td align="center">Disabled</td>
+<td align="center">20801</td>
+<td align="center">21048869</td>
+<td align="center">7.1%</td>
+</tr>
+<tr class="odd">
+<td align="center">Wheelchair</td>
+<td align="center">4335</td>
+<td align="center">4354116</td>
+<td align="center">1.5%</td>
+</tr>
+</tbody>
+</table>
+<div id="data-and-data-description" class="section level2">
+<h2>Data and Data Description</h2>
+<p>The table below considers variables that are included in the model, as they are probable perameters in influencing trip count by purpose. The table displays the population distribution for each ability group, for example, 49.2% of the “Wheelchair” population is in the Low income group. Then that raises the question, is number of trips more infuenced by income or by ability?</p>
 <pre class="r"><code># This table will show all the variables useful for the regression model and show the distribution for each 
 # of the populations: Abled, Disabled, Wheelchair
 
@@ -303,23 +411,31 @@ $(document).ready(function () {
 # entire persons attribute file)
 my_nhts &lt;- read_rds(&quot;data/nhts_data.rds&quot;)
 
+# use the distribution function built for this project to construct the distribution tables
 age &lt;- distributions(my_nhts, Age)
+income.actual &lt;- distributions(my_nhts, hhfaminc)
 income &lt;- distributions(my_nhts, Income)
 work &lt;- distributions(my_nhts, Worker)
+mode &lt;- distributions(my_nhts, Mode)
+
 
 # now the stacking part. only one at a time please :)
 Stack(age, income) %&gt;% 
   Stack(work) %&gt;%
+  Stack(mode) %&gt;%
+  
   
   # pipe into the kable function
-  kable(caption = &quot;Data Distribution&quot;) %&gt;%
+  kable(caption = &quot; 2017 NHTS Data Distribution&quot;) %&gt;%
   kable_styling(&quot;striped&quot;, full_width = F) %&gt;%
+  # Specify which row numbers are grouped together (i.e. from 1, to 10)
   pack_rows(&quot;Age&quot;, 1, 10) %&gt;%
-  pack_rows(&quot;Income&quot;, 11, 14) %&gt;%
-  pack_rows(&quot;Worker Status&quot;, 15, 17)</code></pre>
+  pack_rows(&quot;Income Group&quot;, 11, 14) %&gt;%
+  pack_rows(&quot;Worker Status&quot;, 15, 17) %&gt;%
+  pack_rows(&quot;Mode Choice&quot;, 18, 26)</code></pre>
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
-Data Distribution
+2017 NHTS Data Distribution
 </caption>
 <thead>
 <tr>
@@ -351,10 +467,10 @@ Wheelchair
 6.1%
 </td>
 <td style="text-align:left;">
-0.7%
+0.9%
 </td>
 <td style="text-align:left;">
-1.4%
+1.1%
 </td>
 </tr>
 <tr>
@@ -368,7 +484,7 @@ Wheelchair
 3.5%
 </td>
 <td style="text-align:left;">
-2.0%
+1.6%
 </td>
 </tr>
 <tr>
@@ -379,10 +495,10 @@ Wheelchair
 13.7%
 </td>
 <td style="text-align:left;">
-6.0%
+6.2%
 </td>
 <td style="text-align:left;">
-4.1%
+3.3%
 </td>
 </tr>
 <tr>
@@ -393,10 +509,10 @@ Wheelchair
 16.9%
 </td>
 <td style="text-align:left;">
-5.6%
+5.9%
 </td>
 <td style="text-align:left;">
-5.9%
+4.9%
 </td>
 </tr>
 <tr>
@@ -407,10 +523,10 @@ Wheelchair
 15.0%
 </td>
 <td style="text-align:left;">
-9.7%
+9.8%
 </td>
 <td style="text-align:left;">
-9.4%
+8.0%
 </td>
 </tr>
 <tr>
@@ -421,10 +537,10 @@ Wheelchair
 15.1%
 </td>
 <td style="text-align:left;">
-22.8%
+22.6%
 </td>
 <td style="text-align:left;">
-13.9%
+14.5%
 </td>
 </tr>
 <tr>
@@ -435,10 +551,10 @@ Wheelchair
 13.1%
 </td>
 <td style="text-align:left;">
-25.2%
+24.8%
 </td>
 <td style="text-align:left;">
-26.7%
+27.9%
 </td>
 </tr>
 <tr>
@@ -449,10 +565,10 @@ Wheelchair
 5.9%
 </td>
 <td style="text-align:left;">
-15.6%
+15.1%
 </td>
 <td style="text-align:left;">
-17.2%
+21.5%
 </td>
 </tr>
 <tr>
@@ -463,10 +579,10 @@ Wheelchair
 1.6%
 </td>
 <td style="text-align:left;">
-8.4%
+8.8%
 </td>
 <td style="text-align:left;">
-13.0%
+11.4%
 </td>
 </tr>
 <tr>
@@ -477,29 +593,15 @@ Wheelchair
 0.3%
 </td>
 <td style="text-align:left;">
-2.4%
+2.3%
 </td>
 <td style="text-align:left;">
-6.3%
+5.8%
 </td>
 </tr>
 <tr grouplength="4">
 <td colspan="4" style="border-bottom: 1px solid;">
-<strong>Income</strong>
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-High
-</td>
-<td style="text-align:left;">
-33.5%
-</td>
-<td style="text-align:left;">
-9.3%
-</td>
-<td style="text-align:left;">
-9.3%
+<strong>Income Group</strong>
 </td>
 </tr>
 <tr>
@@ -510,24 +612,10 @@ Low
 15.6%
 </td>
 <td style="text-align:left;">
-46.3%
+45.7%
 </td>
 <td style="text-align:left;">
-51.7%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Mid-High
-</td>
-<td style="text-align:left;">
-30.8%
-</td>
-<td style="text-align:left;">
-19.2%
-</td>
-<td style="text-align:left;">
-16.2%
+49.2%
 </td>
 </tr>
 <tr>
@@ -538,10 +626,38 @@ Mid-Low
 20.1%
 </td>
 <td style="text-align:left;">
-25.2%
+25.1%
 </td>
 <td style="text-align:left;">
-22.8%
+23.1%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Mid-High
+</td>
+<td style="text-align:left;">
+30.8%
+</td>
+<td style="text-align:left;">
+19.4%
+</td>
+<td style="text-align:left;">
+17.5%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+High
+</td>
+<td style="text-align:left;">
+33.5%
+</td>
+<td style="text-align:left;">
+9.7%
+</td>
+<td style="text-align:left;">
+10.2%
 </td>
 </tr>
 <tr grouplength="3">
@@ -557,10 +673,10 @@ Full-Time
 45.1%
 </td>
 <td style="text-align:left;">
-7.2%
+7.9%
 </td>
 <td style="text-align:left;">
-3.3%
+3.5%
 </td>
 </tr>
 <tr>
@@ -571,10 +687,10 @@ Part-Time
 12.9%
 </td>
 <td style="text-align:left;">
-7.8%
+8.0%
 </td>
 <td style="text-align:left;">
-2.4%
+2.5%
 </td>
 </tr>
 <tr>
@@ -585,14 +701,228 @@ Unemployed
 42.0%
 </td>
 <td style="text-align:left;">
-85.0%
+84.1%
 </td>
 <td style="text-align:left;">
-94.3%
+94.1%
+</td>
+</tr>
+<tr grouplength="9">
+<td colspan="4" style="border-bottom: 1px solid;">
+<strong>Mode Choice</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Car (Driver)
+</td>
+<td style="text-align:left;">
+61.6%
+</td>
+<td style="text-align:left;">
+45.6%
+</td>
+<td style="text-align:left;">
+35.2%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Car (Passenger)
+</td>
+<td style="text-align:left;">
+10.1%
+</td>
+<td style="text-align:left;">
+15.7%
+</td>
+<td style="text-align:left;">
+17.4%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Van (Driver)
+</td>
+<td style="text-align:left;">
+4.2%
+</td>
+<td style="text-align:left;">
+3.2%
+</td>
+<td style="text-align:left;">
+4.2%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Van (Passenger)
+</td>
+<td style="text-align:left;">
+2.9%
+</td>
+<td style="text-align:left;">
+3.3%
+</td>
+<td style="text-align:left;">
+4.9%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Walk
+</td>
+<td style="text-align:left;">
+10.0%
+</td>
+<td style="text-align:left;">
+11.5%
+</td>
+<td style="text-align:left;">
+4.4%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Local Transit
+</td>
+<td style="text-align:left;">
+2.1%
+</td>
+<td style="text-align:left;">
+3.6%
+</td>
+<td style="text-align:left;">
+3.3%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Paratransit
+</td>
+<td style="text-align:left;">
+0.0%
+</td>
+<td style="text-align:left;">
+0.9%
+</td>
+<td style="text-align:left;">
+2.3%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Taxi (Including Uber/Lyft)
+</td>
+<td style="text-align:left;">
+0.5%
+</td>
+<td style="text-align:left;">
+0.6%
+</td>
+<td style="text-align:left;">
+1.2%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Other
+</td>
+<td style="text-align:left;">
+8.5%
+</td>
+<td style="text-align:left;">
+15.5%
+</td>
+<td style="text-align:left;">
+27.0%
 </td>
 </tr>
 </tbody>
 </table>
+</div>
+<div id="poisson-regression-of-daily-trips" class="section level2">
+<h2>Poisson Regression of Daily Trips</h2>
+<pre class="r"><code># Organize the data so that trips can be counted and zero trips can be accounted for
+
+#option to use just person attribute
+persons &lt;- read_rds(&quot;data/persons.rds&quot;)
+
+# the grid makes it possible to count zero trips
+grid &lt;- expand_grid(
+  # uses only the unique hhpersonids found in the new_trips data
+  hhpersonid = unique(my_nhts$hhpersonid), 
+  # uses only HBO, HBW, HBSOCREC, NHB, and HBSOP
+  trippurp = unique(my_nhts$trippurp)
+) %&gt;%
+  
+filter(trippurp != &quot;-9&quot;) %&gt;%
+  
+  # now join it with the trip purpose counts
+left_join(
+    my_nhts %&gt;%
+      group_by(hhpersonid, trippurp) %&gt;%
+      # count the trips by purpose for each person
+      tally() %&gt;%
+      mutate(n = ifelse(n &gt; 10, 10, n)
+         ),
+    by = c(&quot;hhpersonid&quot;, &quot;trippurp&quot;)
+) %&gt;%
+  
+# change the NAs to 0s
+mutate(n = ifelse(is.na(n), 0, n)) %&gt;%
+             
+# i need to join this with persons information then I can perform the regression
+
+# From this point there are attributes associated with each trip (length, mode).
+# so if there are trips taken then n is repeated so that each trip can have specific 
+# attribute data attached.
+# left_join(my_nhts)
+  
+left_join(persons)
+
+# note that when joined with persons you cant use variables such as trip length or mode</code></pre>
+<pre class="r"><code>fit.0 &lt;- glm(n ~ trippurp + Ability + r_age + Income + Worker, family = &quot;poisson&quot;, data = grid)
+
+summary(fit.0)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = n ~ trippurp + Ability + r_age + Income + Worker, 
+##     family = &quot;poisson&quot;, data = grid)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.7991  -1.1971  -0.9256   0.5345   6.8267  
+## 
+## Coefficients:
+##                     Estimate Std. Error  z value Pr(&gt;|z|)    
+## (Intercept)       -0.4467411  0.0047186  -94.677  &lt; 2e-16 ***
+## trippurpHBSHOP     0.0238139  0.0032720    7.278 3.39e-13 ***
+## trippurpHBSOCREC  -0.5422519  0.0038384 -141.271  &lt; 2e-16 ***
+## trippurpHBW       -0.4743553  0.0037579 -126.229  &lt; 2e-16 ***
+## trippurpNHB        0.4901339  0.0029555  165.838  &lt; 2e-16 ***
+## AbilityDisabled   -0.3062477  0.0047796  -64.074  &lt; 2e-16 ***
+## AbilityWheelchair -0.6429680  0.0117079  -54.917  &lt; 2e-16 ***
+## r_age              0.0027991  0.0000514   54.454  &lt; 2e-16 ***
+## IncomeMid-Low      0.0493636  0.0037975   12.999  &lt; 2e-16 ***
+## IncomeMid-High     0.0856789  0.0035097   24.412  &lt; 2e-16 ***
+## IncomeHigh         0.1279816  0.0035309   36.246  &lt; 2e-16 ***
+## WorkerPart-Time    0.0637668  0.0035214   18.108  &lt; 2e-16 ***
+## WorkerUnemployed  -0.1518752  0.0023540  -64.517  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 2141714  on 1280514  degrees of freedom
+## Residual deviance: 1989809  on 1280502  degrees of freedom
+##   (40655 observations deleted due to missingness)
+## AIC: 3115979
+## 
+## Number of Fisher Scoring iterations: 6</code></pre>
+<pre class="r"><code>plot(fit.0, 1)</code></pre>
+<p><img src="methodology_files/figure-html/poisson-1.png" width="672" /></p>
+</div>
 
 
 
@@ -627,6 +957,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

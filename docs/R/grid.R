@@ -44,7 +44,6 @@ new_trips %>%
   # if no trips were taken show they took 0 trips
   mutate(n = ifelse(is.na(n), 0, n)) %>%
   # add all of the person data (including Ability, Age, Worker, Income groups etc.)
-  left_join(persons_edited, "hhpersonid") %>%
-  write_rds("data/final.rds")
+  left_join(persons_edited, "hhpersonid") 
 
 
