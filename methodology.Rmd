@@ -68,7 +68,7 @@ nhts_persons %>%
   mutate(Distribution = 
            percent(Population/sum(Population), accuracy = 0.1)) %>%
   filter(Ability != "NA") %>%
-  pander()
+  pander(caption = "Counts and Distribution of Population")
 
 ```
 
