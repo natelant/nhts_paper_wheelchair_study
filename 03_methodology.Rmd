@@ -95,12 +95,15 @@ income.actual <- distributions(my_persons, hhfaminc)
 income <- distributions(my_persons, Income)
 work <- distributions(my_persons, Worker)
 mode <- distributions(my_nhts, Mode)
+msa <- distributions(my_persons, pop_size)
+       
 
 
 # now the stacking part. only one at a time please :)
 Stack(age, income) %>% 
   Stack(work) %>%
   Stack(mode) %>%
+  Stack(msa) %>%
   
   
   # pipe into the kable function
@@ -110,7 +113,8 @@ Stack(age, income) %>%
   pack_rows("Age", 1, 10) %>%
   pack_rows("Income Group", 11, 14) %>%
   pack_rows("Worker Status", 15, 17) %>%
-  pack_rows("Mode Choice", 18, 26)
+  pack_rows("Mode Choice", 18, 26) %>%
+  pack_rows("MSA Population Size", 27, 32)
 ```
 
 ## Poisson Regression of Daily Trips
