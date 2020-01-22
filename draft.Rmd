@@ -1,5 +1,6 @@
 ---
 title: "Draft 1"
+author: Nate Lant, Dr. Macfarlane
 output: html_document
 bibliography: biblio.bib
 ---

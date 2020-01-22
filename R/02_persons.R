@@ -2,7 +2,9 @@
 # writes the file as persons.rds
 
 nhts_persons %>%
-  select(houseid, personid, w_chair, w_mtrchr, w_scootr, medcond6, medcond, r_age, wkftpt, wtperfin) %>%
+  select(houseid, personid, w_chair, w_mtrchr, w_scootr, medcond6, 
+         medcond, r_age, wkftpt, wtperfin, health
+         ) %>%
   left_join(nhts_households %>% 
               # I only need a couple variables from the household file
               select(houseid, hhfaminc, hhstate, msasize), 
@@ -62,7 +64,9 @@ nhts_persons %>%
     #reorders the factors of msa pop_size
     pop_size = fct_relevel(pop_size, "Less than 250,000", "250,000 - 499,999", "500,000 - 999,999", 
                            "1,000,000 - 2,999,999", "More than 3,000,000", "Not in an MSA"
-    )
+                           ),
+    # changes the 1, 2, 3, to Excellent, Good, Fair etc.
+    health = as_factor(health)
     
   ) %>%
   

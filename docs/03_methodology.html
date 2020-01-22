@@ -381,6 +381,7 @@ income &lt;- distributions(my_persons, Income)
 work &lt;- distributions(my_persons, Worker)
 mode &lt;- distributions(my_nhts, Mode)
 msa &lt;- distributions(my_persons, pop_size)
+healthy &lt;- distributions(my_persons, health)
        
 
 
@@ -389,6 +390,7 @@ Stack(age, income) %&gt;%
   Stack(work) %&gt;%
   Stack(mode) %&gt;%
   Stack(msa) %&gt;%
+  Stack(healthy) %&gt;%
   
   
   # pipe into the kable function
@@ -399,7 +401,8 @@ Stack(age, income) %&gt;%
   pack_rows(&quot;Income Group&quot;, 11, 14) %&gt;%
   pack_rows(&quot;Worker Status&quot;, 15, 17) %&gt;%
   pack_rows(&quot;Mode Choice&quot;, 18, 26) %&gt;%
-  pack_rows(&quot;MSA Population Size&quot;, 27, 32)</code></pre>
+  pack_rows(&quot;MSA Population Size&quot;, 27, 32) %&gt;%
+  pack_rows(&quot;Personal Opinion of Health&quot;, 33, 39)</code></pre>
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 2017 NHTS Data Distribution
@@ -892,6 +895,109 @@ Not in an MSA
 </td>
 <td style="text-align:left;">
 20.4%
+</td>
+</tr>
+<tr grouplength="7">
+<td colspan="4" style="border-bottom: 1px solid;">
+<strong>Personal Opinion of Health</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+I prefer not to answer
+</td>
+<td style="text-align:left;">
+0.1%
+</td>
+<td style="text-align:left;">
+0.0%
+</td>
+<td style="text-align:left;">
+0.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+I don’t know
+</td>
+<td style="text-align:left;">
+0.0%
+</td>
+<td style="text-align:left;">
+0.1%
+</td>
+<td style="text-align:left;">
+0.1%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Excellent
+</td>
+<td style="text-align:left;">
+34.8%
+</td>
+<td style="text-align:left;">
+3.7%
+</td>
+<td style="text-align:left;">
+2.6%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Very good
+</td>
+<td style="text-align:left;">
+37.1%
+</td>
+<td style="text-align:left;">
+11.5%
+</td>
+<td style="text-align:left;">
+7.8%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Good
+</td>
+<td style="text-align:left;">
+22.4%
+</td>
+<td style="text-align:left;">
+30.9%
+</td>
+<td style="text-align:left;">
+21.1%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Fair
+</td>
+<td style="text-align:left;">
+5.1%
+</td>
+<td style="text-align:left;">
+36.5%
+</td>
+<td style="text-align:left;">
+35.6%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Poor
+</td>
+<td style="text-align:left;">
+0.5%
+</td>
+<td style="text-align:left;">
+17.4%
+</td>
+<td style="text-align:left;">
+32.8%
 </td>
 </tr>
 </tbody>
