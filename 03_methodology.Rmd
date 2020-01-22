@@ -5,12 +5,12 @@ output:
   html_document:
     code_folding: hide
 ---
-The NHTS asks respondents if they have “a temporary or permanent condition or handicap that makes it difficult to travel outside of the home.” If they respond yes, the NHTS asks follow- up questions about the mobility devices they use, such as canes or wheelchairs. It also asks follow-up questions about how the condition affects their travel—for example, by limiting their driving to daytime. For the rest of this report, “people with disabilities” refers to people who report having travel-limiting disabilities [@Brumbaugh2018].
+The NHTS asks respondents if they have “a temporary or permanent condition or handicap that makes it difficult to travel outside of the home.” If they respond yes, the NHTS asks follow-up questions about the mobility devices they use, such as canes or wheelchairs. It also asks follow-up questions about how the condition affects their travel—for example, by limiting their driving to daytime. For the rest of this report, “people with disabilities” refers to people who report having travel-limiting disabilities [@Brumbaugh2018].
 
 In this study, the population was divided into three groups: Disabled individuals who reported using a wheelchair (either mechanical, manual or both) or scooter are labeled *"Wheelchair"*; disabled individuals (excluding those who use a wheelchair or scooter) are labeled *"Disabled"*; and the general population who did not report a "travel-limiting" disability are labeled *"Abled"*.
 
 
-```{r setup, message=F}
+```{r setup, message=F, warning=F}
 knitr::opts_chunk$set(echo = TRUE)
 
 # install.packages("devtools")
@@ -29,7 +29,7 @@ library(Stack)
 
 
 
-```{r wheelchair, fig.align='center'}
+```{r wheelchair, fig.align='center', message=F, warning=F, echo=F}
 # This table shows the general population distribution, the number of respondents, and the respective
 # distribution.
 nhts_persons %>% 
@@ -56,7 +56,7 @@ nhts_persons %>%
 
 The table below considers variables that are included in the model, as they are probable perameters in influencing trip count by purpose. The table displays the population distribution for each ability group, for example, 47.1% of the "Wheelchair" population is in the Low income group. Then that raises the question, is number of trips more infuenced by income or by ability?
 
-```{r function}
+```{r function, message=F, warning=F, echo=F}
 # This function is designed to create a table of distributions by ability type for each factor in 
 # a variable (i.e. income, age, worker status etc.)
 distributions <- function(data, variable){
@@ -165,8 +165,6 @@ left_join(persons)
 ```{r poisson}
 fit.0 <- glm(n ~ trippurp + Ability + r_age + Income + Worker, family = "poisson", data = grid)
 
-summary(fit.0)
-
-plot(fit.0, 1)
-
 ```
+
+# References

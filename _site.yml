@@ -8,5 +8,5 @@ navbar:
     - text: "Literature Review"
       href: literature.html
     - text: "Methodology"
-      href: methodology.html
+      href: "03_methodology.html"
     

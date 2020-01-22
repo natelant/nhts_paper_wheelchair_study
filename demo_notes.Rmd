@@ -2,9 +2,7 @@
 title: "notes"
 author: "Nate Lant"
 date: "1/14/2020"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 Just looking at the introductions...

@@ -1,0 +1,181 @@
+---
+title: "Draft 1"
+output: html_document
+bibliography: biblio.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# install.packages("devtools")
+# devtools::install_github("byu-transpolab/nhts2017")
+library(nhts2017)
+library(tidyverse)
+library(scales)
+library(pander)
+
+# for help understanding the kableExtra library 
+# (https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
+# there may be some issues with this table going to html vs pdf and latex
+library(kableExtra)
+library(Stack)
+```
+
+# Introduction
+
+Cities across the world are concerned with understanding and forecasting the impacts of modern mobility systems. Systems such as ridehailing via Transportation Network Companies (TNC), flexible route transit systems, on-demand carpool services, autonomous vehicles, and others promise to greatly improve, or at least transform, urban mobility throughout the 21st century. Ideally, these modern systems of transporation are accessible to all users, but individuals who are physically disabled have reported difficulties using many of these systems [@Bascom2017]. 
+
+Riders with disabilities, like the general public, want to have choices. For example, bus service may 
+work well for a disabled person’s trips to work and school, but they may want to use a taxi or TNC on an 
+evening after a movie. Riders also want to choose whether to pay less by sharing a ride or to spend more 
+to go directly to their destination [@Francisco2019].
+
+According to the 2017 National Household Travel Survey (NHTS), an estimated 25.5 million Americans have disabilities that make traveling outside the home difficult. They accounted for 8.5 percent of the population age 5 and older in 2017. An estimated 13.4 million of these Americans—more than half—are adults age 18 to 64, the age group with typically high labor force participation [@Brumbaugh2018]. An estimated 4.3 million Americans use some kind of wheelchair (manual, mechanical or an electric scooter).
+
+ <!--- 
+ none of these citations are included in my biblio.bib
+ all came from @ Bascom2017
+ --->
+In order for individuals to obtain employment, goods and services, healthcare, education, and interact socially, access to transportation is critical (Cassas, 2007; Preston and Raje, 2008) For example, a lack of access to transportation not only limits access to employment opportunities, but can also make it more difficult to find employment by limiting access to employment center and interview locations (Kenyon et al., 2002; Department of Environment Transport and the Regions, 2000). Similarly, healthcare and education are often not equally distributed in a community, making access difficult for individuals who do not live near these services (Martens, 2012)
+
+# Literature Review
+
+### Paratransit, Taxis, and TNCs
+Residents of cities who are physically unable to use public transportation, including the disabled and mobility-impaired elderly, are offered car or van rides by paratransit services. Required by an unfunded 1990 Americans 
+with Disabilities Act mandate (https: //www.law.cornell.edu/cfr/text /49/37.21), paratransit systems are enormous: in New York City, paratransit serves 144,000 subscribers at \$456 million per year; in the Chicago region, 50,000 subscribers are served at \$137 million per year; in Boston, 80,000 at \$75 million per year[@Kaufman2016]. These operations grow annually with new registrations and costs.
+
+Although paratransit ridership is slightly more than 1% of the total transit ridership, paratransit costs comprised 9% of transit operating costs; therefore, efficiencies are needed to address the ever increasing costs of meeting the civil rights requirements of the Americans with Disabilities Act (ADA) for paratransit service [@Chia2008]. From 1992—the first year of ADA-complementary paratransit service—to 2004, paratransit ridership in the United States increased by 58.3%, to more than 114 million trips, most of which were ADA-complementary paratransit trips. In addition, the operating cost per trip for paratransit service was \$22.14, whereas for all other modes, the operating cost per trip was \$2.75 (per trip costs calculated from APTA data).
+
+People with disabilities are more reliant on for-hire services, in particular taxicabs, than non-disabled persons. While nondisabled people make 4.1 for-hire trips annually, people with disabilities make twice as many trips (8.2 per year) [@Schaller2018]. (National data only; sample size too small for geographic detail.) People with disabilities are also more reliant on taxicabs than the general population. People with disabilities take 5.9 taxi trips annually, twice their use of TNCs (2.3 trips per year).
+
+Many transit agencies use taxis as part of their required ADA paratransit service and to provide a same-day service that is not a formal part of ADA paratransit service [@Ellis2016].
+
+The rapid expansion of TNC services has also degraded the quality and availability of on-demand 
+transportation access for riders who require a wheelchair accessible vehicle by upending the existing 
+taxi industry. The subsequent reduction in accessible ramp taxis has compromised the availability of 
+accessible taxis under the San Francisco Paratransit Taxi and Paratransit Plus programs 
+[@Consulting2018].
+
+
+### Policy
+Because of gaps in accessibility, governments and transporation agencies are beginning to explore policies and methods of improving these systems for all users. In 2019, the California SB 1376: The TNC Access for All Act mandates improved access to TNC service for wheelchair users and others with disabilities [@California2019]. San Francisco is not the only large, urban city addressing accessibility of TNCs. A review of Boston, Chicago, and New York City found that peer cities are grappling with similar challenges and opportunities 
+to improve access to TNCs for persons with disabilities [@Francisco2019]. In 2018, the Taxi and Limousine Commission (TLC) in New York City issued a mandate requiring Uber, Lyft and Via to make wheelchair accessible service a growing part of their operations [@Report2019]. The wait time requirement states that, by 2021, TNCs must either service at least 80 percent of requests for wheelchair-accessible vehicles in under 10 minutes and 90 percent in under 15 minutes, or associate with a company that has  the capacity to meet those requirements.
+
+<!--- maybe i could add some more litigation stuff here from @Report2019 ny report --->
+
+### Case Studies
+In Salt Lake City, the Utah Transit Authority has lauched pilots with Lyft and with Via in attempt to offer wheelchair-dependent individuals the opportunity to hail a wheechair-accessibile vehicle (WAV).
+
+<!--- 
+each of these examples came from @Schaller2018 
+--->
+Laguna Beach, for example, contracted with Uber to supplement transportation for senior and disabled passengers following curtailments of local bus service. 
+
+The Pinellas Suncoast Transit Authority in the Tampa and St. Petersburg, Florida area, conducted a two-year pilot with Uber, a cab company and a wheelchair van provider for on-demand trips at night to or from work to participants in an agency program for transportation-disadvantaged persons. 
+
+After an initial microtransit pilot involving the now-defunct company Bridj, the Kansas City Area Transportation Authority is using taxis in its RideKC Freedom program, serving older adults and persons with disabilities with same-day service scheduled through a mobile app or by telephoning a call center. 
+
+Via is developing with the city of Berlin, Germany a van service that complements existing transit service, focusing on late night and weekend travel.
+
+TNCs have recently started to participate in programs that supplement ADA paratransit. A prime example is the pilot by the Boston area transit agency (MBTA) that involves Uber, Lyft and other companies. ADA paratransit users are offered the option of using one of these three companies instead of the regular ADA service. They can make same-day reservations instead of having to call a day or more in advance. Riders pay the same \$2 fare and any amount over \$15 (making for a subsidy of up to \$13 per trip). Lyft provides a call center under its Lyft Concierge program, while Uber addressed smartphone issues by giving away smartphones to some users. 
+
+Another example is the transit agency in Las Vegas, Nevada, which began a pilot earlier this year with Lyft to provide on-demand paratransit service.
+
+
+# Methodology
+The NHTS asks respondents if they have “a temporary or permanent condition or handicap that makes it difficult to travel outside of the home.” If they respond yes, the NHTS asks follow- up questions about the mobility devices they use, such as canes or wheelchairs. It also asks follow-up questions about how the condition affects their travel—for example, by limiting their driving to daytime. For the rest of this report, “people with disabilities” refers to people who report having travel-limiting disabilities [@Brumbaugh2018].
+
+In this study, the population was divided into three groups: Disabled individuals who reported using a wheelchair (either mechanical, manual or both) or scooter are labeled *"Wheelchair"*; disabled individuals (excluding those who use a wheelchair or scooter) are labeled *"Disabled"*; and the general population who did not report a "travel-limiting" disability are labeled *"Abled"*.
+
+```{r wheelchair, fig.align='center', message=F, warning=F, echo=F}
+# This table shows the general population distribution, the number of respondents, and the respective
+# distribution.
+nhts_persons %>% 
+  filter(r_age > 5) %>%
+  mutate(Ability = 
+           case_when(
+               w_chair == "07" | w_mtrchr == "08" | w_scootr == "06" ~ "Wheelchair",
+               medcond == "01" ~ "Disabled",  
+               medcond == "02" ~ "Abled")
+           ) %>% 
+  
+  group_by(Ability) %>%
+  summarise(Survey = n(),
+            Population = sum(wtperfin)) %>%
+  mutate(Distribution = 
+           percent(Population/sum(Population), accuracy = 0.1)) %>%
+  filter(Ability != "NA") %>%
+  pander(caption = "Counts and Distribution of Population")
+
+```
+
+
+## Data and Data Description
+
+The table below considers variables that are included in the model, as they are probable perameters in influencing trip count by purpose. The table displays the population distribution for each ability group, for example, 47.1% of the "Wheelchair" population is in the Low income group. Then that raises the question, is number of trips more infuenced by income or by ability?
+
+```{r function, message=F, warning=F, echo=F}
+# This function is designed to create a table of distributions by ability type for each factor in 
+# a variable (i.e. income, age, worker status etc.)
+distributions <- function(data, variable){
+  
+  quote_var <- enquo(variable)
+  
+  data %>% 
+  filter(Ability != "NA", 
+         !!quote_var != "NA") %>%
+  # Calculate number of people in each combination of income and ability.
+  group_by(Ability, !!quote_var) %>%
+  summarise(population = sum(wtperfin)) %>%
+  mutate(Population = population,
+        `Distribution(%)` = 
+          percent(population/sum(population), 
+                   accuracy = 0.1),
+        Variable = as.factor(!!quote_var)) %>%
+  select(Ability, Variable, `Distribution(%)`) %>%
+  spread(Ability, `Distribution(%)`)
+  
+}
+```
+
+```{r code.table, message=F, warning=F, echo=F}
+# This table will show all the variables useful for the regression model and show the distribution for each 
+# of the populations: Abled, Disabled, Wheelchair
+
+# the final.rds data has the full grid with all of the trip purpose tally per person (in addition to the 
+# entire persons attribute file)
+my_nhts <- read_rds("data/nhts_data.rds")
+my_persons <- read_rds("data/persons.rds")
+
+# use the distribution function built for this project to construct the distribution tables
+age <- distributions(my_persons, Age)
+income.actual <- distributions(my_persons, hhfaminc)
+income <- distributions(my_persons, Income)
+work <- distributions(my_persons, Worker)
+mode <- distributions(my_nhts, Mode)
+msa <- distributions(my_persons, pop_size)
+       
+
+
+# now the stacking part. only one at a time please :)
+Stack(age, income) %>% 
+  Stack(work) %>%
+  Stack(mode) %>%
+  Stack(msa) %>%
+  
+  
+  # pipe into the kable function
+  kable(caption = "2017 NHTS Data Distribution") %>%
+  kable_styling("striped", full_width = F) %>%
+  # Specify which row numbers are grouped together (i.e. from 1, to 10)
+  pack_rows("Age", 1, 10) %>%
+  pack_rows("Income Group", 11, 14) %>%
+  pack_rows("Worker Status", 15, 17) %>%
+  pack_rows("Mode Choice", 18, 26) %>%
+  pack_rows("MSA Population Size", 27, 32)
+```
+
+## Poisson Regression of Daily Trips
+
+
+# References

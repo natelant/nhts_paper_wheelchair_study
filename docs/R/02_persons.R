@@ -5,7 +5,7 @@ nhts_persons %>%
   select(houseid, personid, w_chair, w_mtrchr, w_scootr, medcond6, medcond, r_age, wkftpt, wtperfin) %>%
   left_join(nhts_households %>% 
               # I only need a couple variables from the household file
-              select(houseid, hhfaminc, hhstate), 
+              select(houseid, hhfaminc, hhstate, msasize), 
             by = "houseid") %>%
   
 
@@ -51,6 +51,17 @@ nhts_persons %>%
                        wkftpt == "02" ~ "Part-Time",
                        # it is safe to assume that whoever isn't partime or fulltime is unemployed
                        wkftpt == "-1" ~ "Unemployed"
+    ),
+    pop_size = case_when(msasize == "01" ~ "Less than 250,000",
+                         msasize == "02" ~ "250,000 - 499,999",
+                         msasize == "03" ~ "500,000 - 999,999",
+                         msasize == "04" ~ "1,000,000 - 2,999,999",
+                         msasize == "05" ~ "More than 3,000,000",
+                         TRUE ~ "Not in an MSA"
+                         ),
+    #reorders the factors of msa pop_size
+    pop_size = fct_relevel(pop_size, "Less than 250,000", "250,000 - 499,999", "500,000 - 999,999", 
+                           "1,000,000 - 2,999,999", "More than 3,000,000", "Not in an MSA"
     )
     
   ) %>%

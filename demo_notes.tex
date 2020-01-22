@@ -1,0 +1,415 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={notes},
+            pdfauthor={Nate Lant},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{notes}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Nate Lant}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{1/14/2020}
+
+
+\begin{document}
+\maketitle
+
+Just looking at the introductions\ldots{}
+
+\hypertarget{tncs-and-disabled-access-sf}{%
+\subsection{TNC's and Disabled Access
+(SF)}\label{tncs-and-disabled-access-sf}}
+
+Since establishing oversight of TNCs in 2013, the California Public
+Utilities Commission (CPUC) has promulgated only a few regulations and
+minimal oversight to ensure equal access for passengers with
+disabilities. New legislation, effective January 1, 2019, known as
+Senate Bill 1376: The TNC Access for All Act (Hill), provides the CPUC
+with the mandate to improve access to TNC service for wheelchair users
+and others with disabilities, as well as the opportunity to work with
+stakeholders to build public trust and increase transparency.
+
+San Francisco is not the only large, urban city addressing accessibility
+of TNCs. A review of Boston, Chicago, and New York City found that peer
+cities are grappling with similar challenges and opportunities to
+improve access to TNCs for persons with disabilities.
+
+Riders with disabilities, like the general public, want to have choices.
+For example, bus service may work well for a disabled person's trips to
+work and school, but they may want to use a taxi or TNC on an evening
+after a movie. Riders also want to choose whether to pay less by sharing
+a ride or to spend more to go directly to their destination.
+
+The arrival of emerging mobility services has expanded transportation
+options for some but it has not expanded options equally for all. For
+approximately 90,000 San Francisco residents with disabilities (almost
+11\% of the population) TNCs may not be an option either some or all the
+time. While people with disabilities are more reliant on for-hire
+services and make twice the number of for-hire trips than non- disabled
+persons per year, they are more reliant on taxicabs. People with
+disabilities report taking twice as many taxi trips as TNC trips
+{[}@Schaller2018{]} while overall there are approximately 12 times as
+many TNC trips as taxi trips during a typical weekday in San Francisco
+(San Francisco County Transportation Authority, June 2017).
+
+The rapid expansion of TNC services has also degraded the quality and
+availability of on-demand transportation access for riders who require a
+wheelchair accessible vehicle by upending the existing taxi industry.
+The subsequent reduction in accessible ramp taxis has compromised the
+availability of accessible taxis under the San Francisco Paratransit
+Taxi and Paratransit Plus programs {[}@Consulting2018{]}.
+
+\hypertarget{ny-state-tnc-accessibility-task-force}{%
+\subsection{NY State TNC Accessibility Task
+Force}\label{ny-state-tnc-accessibility-task-force}}
+
+There is a legislative history (if I find that relevant)
+
+In general, the cost of para-transit is high for many communities. For
+instance, ``The average cost of operating a single paratransit trip is
+about \$23 in the U.S., compared with less than \$4 for the average trip
+on bus or light rail. In Boston, the average cost per ride is about
+\$45, in Washington, about \$50, and in New York, nearly \$57. Transit
+agencies nationwide logged about 223 million paratransit trips at a cost
+exceeding \$5.1 billion --- about 12 percent of total transit operating
+costs --- in 2013, according to the most recent data from the American
+Public Transportation Association.
+(\url{https://www.sandiegouniontribune.com/sdut-transit-systems-eye-uber-lyft-for-savings-on-the-2016apr10-story.html}).
+
+In 2018, the Taxi and Limousine Commission (TLC) in New York City issued
+a mandate requiring Uber, Lyft and Via to make wheelchair accessible
+service a growing part of their operations. While this particular
+mandate was not adopted, a settlement was reached in the New York State
+Supreme Court. The NYC TLC retained the mandate that would require TNCs
+to meet a wait-time requirement. The wait time requirement states that,
+by 2021, TNCs must either service at least 80 percent of requests for
+wheelchair-accessible vehicles in under 10 minutes and 90 percent in
+under 15 minutes, or associate with a company that has the capacity to
+meet those requirements {[}@Report2019{]}.
+
+\hypertarget{cases-mentioned}{%
+\paragraph{Cases mentioned}\label{cases-mentioned}}
+
+Perhaps more significantly, the Massachusetts Bay Transportation
+Authority, serving the greater Boston area, instituted a policy whereby
+individuals with disabilities can have their rides subsidized with
+riders only paying the first \$2, and MBTA covering the next \$13.35
+This is not only a significant benefit for riders with disabilities, it
+is also a benefit to MBTA. Boston's door-to-door service for riders with
+disabilities and elderly (the Ride) has an annual budget of over \$100
+million a year.36 Under ``The Ride'' program each ride costs \$31, but
+with the partnership with Uber and Lyft, these rides will cost the
+agency \$13 -- a 70\% savings.
+
+In Washington D.C., Metro launched the Abilities Ride program in
+partnership with Uber and Lyft.37 In this program, the individual pays
+the first \$5, Metro pays the next \$15, and then the individual is
+responsible for any amount over \$20.38 This allows riders to take up to
+4 rides per day, get same day services, and be accompanied by one
+personal care assistant at no extra cost.39 However, WMATA was
+criticized: ``The rideshare option is expected to be popular among
+customers who don't need wheelchair-accessible vehicles to travel;
+Still, some people with disabilities and advocates have been critical of
+Metro's intent to partner with the companies, saying they lack
+wheelchair-accessible vehicles and training in dealing with special-
+needs populations.''40
+
+In other communities, like Chicago, the presence of UberWAV (Wheelchair
+Accessible Vehicles) appears to be expanding the accessibility of TNCs
+to individuals who utilize a wheelchair. In fact, the Chicago Tribune
+reported in late 2017 that Uber had ``65 wheelchair-accessible vehicles
+on the road available through the app.''41 There was clearly more work
+to be done, and Uber's Chicago General Manager acknowledges that,
+``developing and implementing new solutions to the mobility challenge
+faced by the disability community is an issue we take very
+seriously.''42
+
+\hypertarget{travel-patterns-of-american-adults-with-disabilities}{%
+\subsection{Travel Patterns of American Adults with
+Disabilities}\label{travel-patterns-of-american-adults-with-disabilities}}
+
+An estimated 25.5 million Americans have disabilities that make
+traveling outside the home difficult. They accounted for 8.5 percent of
+the population age 5 and older in 2017. An estimated 13.4 million of
+these Americans---more than half---are adults age 18 to 64, the age
+group with typically high labor force participation. 4.3 million
+Americans use some kind of wheelchair (manual, mechanical or an electric
+scooter). The NHTS also does not include people living in nursing homes
+or other group quarters.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nhts_persons }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(r_age }\OperatorTok{>}\StringTok{ }\DecValTok{5}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{test.ability =} 
+           \KeywordTok{case_when}\NormalTok{(}
+\NormalTok{               w_chair }\OperatorTok{==}\StringTok{ "07"} \OperatorTok{|}\StringTok{ }\NormalTok{w_mtrchr }\OperatorTok{==}\StringTok{ "08"} \OperatorTok{|}\StringTok{ }\NormalTok{w_scootr }\OperatorTok{==}\StringTok{ "06"} \OperatorTok{~}\StringTok{ "Wheelchair"}\NormalTok{,}
+\NormalTok{               medcond }\OperatorTok{==}\StringTok{ "01"} \OperatorTok{~}\StringTok{ "Disabled"}\NormalTok{,  }
+\NormalTok{               medcond }\OperatorTok{==}\StringTok{ "02"} \OperatorTok{~}\StringTok{ "Abled"}\NormalTok{)}
+\NormalTok{           ) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(test.ability) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{Survey =} \KeywordTok{n}\NormalTok{(),}
+            \DataTypeTok{population =} \KeywordTok{sum}\NormalTok{(wtperfin)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{Population =}\NormalTok{ population,}
+         \StringTok{`}\DataTypeTok{Distribution(%)}\StringTok{`}\NormalTok{ =}\StringTok{ }
+\StringTok{           }\KeywordTok{percent}\NormalTok{(population}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(population), }\DataTypeTok{accuracy =} \FloatTok{0.1}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{population) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 4 x 4
+##   test.ability Survey Population `Distribution(%)`
+##   <chr>         <int>      <dbl> <chr>            
+## 1 Abled        236051 271384034. 91.4%            
+## 2 Disabled      20801  21048869. 7.1%             
+## 3 Wheelchair     4335   4354116. 1.5%             
+## 4 <NA>            128    127248. 0.0%
+\end{verbatim}
+
+\hypertarget{intelligent-paratransit}{%
+\subsection{Intelligent Paratransit}\label{intelligent-paratransit}}
+
+Residents of cities who are physically unable to use public
+transportation, including the disabled and mobility- impaired elderly,
+are offered car or van rides by paratransit services. Required by an
+unfunded 1990 Americans with Disabilities Act mandate (https:
+//www.law.cornell.edu/cfr/text /49/37.21), paratransit systems are
+enormous: in New York City, paratransit serves 144,000 subscribers at
+\$456 million per year; in the Chicago region, 50,000 subscribers are
+served at \$137 million per year; in Boston, 80,000 at \$75 million per
+year. These operations grow annually with new registrations and costs.
+Furthermore, their rides are reportedly poor experiences ().
+
+\hypertarget{impacts-of-limited-acces-bascom-and-christensen}{%
+\subsection{Impacts of limited acces (Bascom and
+Christensen)}\label{impacts-of-limited-acces-bascom-and-christensen}}
+
+In order for individuals to obtain employment, goods and services,
+healthcare, education, and interact socially, access to trans- portation
+is critical (Cassas, 2007; Preston and Raje, 2008) For example, a lack
+of access to transportation not only limits access to employment
+opportunities, but can also make it more difficult to find employment by
+limiting access to employment center and interview locations (Kenyon et
+al., 2002; Department of Environment Transport and the Regions, 2000).
+Similarly, healthcare and education are often not equally distributed in
+a community, making access difficult for individuals who do not live
+near these services (Martens, 2012)
+
+\hypertarget{strategic-plan-2019-2022}{%
+\subsection{Strategic Plan 2019-2022}\label{strategic-plan-2019-2022}}
+
+Personal mobility is essential to the success of America's citizens,
+communities, and economy. Transportation enables mobility by connecting
+individuals to their homes, jobs, and communities. Despite its
+significance, millions of Americans lack access to reliable
+transportation due to disability, income, or age. Inadequate
+transportation limits the mobility of these individuals and prevents
+them from accessing jobs, medical care, healthy food, education, social
+services, and other community activities.
+
+\hypertarget{policies-and-practices-for-meeting-ada-paratransit-demand}{%
+\subsection{Policies and Practices for Meeting ADA Paratransit
+Demand}\label{policies-and-practices-for-meeting-ada-paratransit-demand}}
+
+Although paratransit ridership is slightly more than 1\% of the total
+transit ridership, paratransit costs comprised 9\% of transit operating
+costs; therefore, efficiencies are needed to address the ever-
+increasing costs of meeting the civil rights requirements of the
+Americans with Disabilities Act (ADA) for paratransit service. From
+1992---the first year of ADA-complementary paratransit service---to
+2004, paratransit ridership in the United States increased by 58.3\%, to
+more than 114 million trips, most of which were ADA-complementary
+paratransit trips. In addition, the operating cost per trip for
+paratransit service was \$22.14, whereas for all other modes, the
+operating cost per trip was \$2.75 (per trip costs calculated from APTA
+data).
+
+Efficiencies are needed to address the ever-increasing cost of meeting
+the civil rights requirements of the Americans with Disabilities Act
+(ADA) for paratransit service. An underlying purpose of the ADA is to
+provide equal opportunity, full participation, and independence to
+persons with disabilities. Transit
+
+\hypertarget{schaller-new-automobility}{%
+\subsection{Schaller: New
+Automobility}\label{schaller-new-automobility}}
+
+People with disabilities are more reliant on for-hire services, in
+particular taxicabs, than non-disabled persons. While nondisabled people
+make 4.1 for-hire trips annually, people with disabilities make twice as
+many trips (8.2 per year). (National data only; sample size too small
+for geographic detail.) People with disabilities are also more reliant
+on taxicabs than the general population. People with disabilities take
+5.9 taxi trips annually, twice their use of TNCs (2.3 trips per year).
+
+There is a long history of taxicabs participating in Dial-A-Ride
+programs for seniors and persons with disabilities who lack access to a
+personal car or the financial means to pay for a taxi. Public subsidies
+are needed for patrons to obtain medical care, go shopping, socialize at
+senior centers, attend religious services and so forth.
+
+\hypertarget{case-studies}{%
+\paragraph{Case Studies}\label{case-studies}}
+
+Laguna Beach, for example, contracted with Uber to supplement
+transportation for senior and disabled passengers following curtailments
+of local bus service.
+
+The Pinellas Suncoast Transit Authority in the Tampa and St.~Petersburg,
+Florida area, conducted a two-year pilot with Uber, a cab company and a
+wheelchair van provider for on-demand trips at night to or from work to
+participants in an agency program for transportation-disadvantaged
+persons.
+
+After an initial microtransit pilot involving the now-defunct company
+Bridj, the Kansas City Area Transportation Authority is using taxis in
+its RideKC Freedom program, serving older adults and persons with
+disabilities with same-day service scheduled through a mobile app or by
+telephoning a call center.
+
+Via is developing with the city of Berlin, Germany a van service that
+complements existing transit service, focusing on late night and weekend
+travel.
+
+TNCs have recently started to participate in programs that supplement
+ADA paratransit. A prime example is the pilot by the Boston area transit
+agency (MBTA) that involves Uber, Lyft and other companies. ADA
+paratransit users are offered the option of using one of these three
+companies instead of the regular ADA service. They can make same-day
+reservations instead of having to call a day or more in advance. Riders
+pay the same \$2 fare and any amount over \$15 (making for a subsidy of
+up to \$13 per trip). Lyft provides a call center under its Lyft
+Concierge program, while Uber addressed smartphone issues by giving away
+smartphones to some users.
+
+Another example is the transit agency in Las Vegas, Nevada, which began
+a pilot earlier this year with Lyft to provide on-demand paratransit
+service.
+
+\hypertarget{use-of-taxis-in-public-transportation-for-people-with-disabilities-and-older-adults-2016}{%
+\subsection{Use of Taxis in Public Transportation for People with
+Disabilities and Older Adults
+(2016)}\label{use-of-taxis-in-public-transportation-for-people-with-disabilities-and-older-adults-2016}}
+
+Many transit agencies use taxis as part of their required ADA
+paratransit service and to provide a same-day service that is not a
+formal part of ADA paratransit service.
+
+
+\end{document}
