@@ -38,8 +38,8 @@ build_activities <- function(trips) {
               event = "arrive")
   
   last_activity <- events %>%
-    slice(1) %>%
-    transmute(activity = as.character(whyfrom),
+    slice(n()) %>%
+    transmute(activity = as.character(whyto),
               time = as_datetime("2017-10-11 4:00:00"),
               event = "depart")
   
@@ -52,6 +52,21 @@ build_activities <- function(trips) {
     mutate(activity_number = as.integer(factor(time))) %>%
     spread(event, time) %>%
     arrange(arrive, .by_group = TRUE)
+  
+  # create columns for visualization 
+ activities %>%  mutate(
+      home_status = ifelse(activity == "01", 1, 0),
+      tour_count = cumsum(home_status),
+      tour_count = ifelse(home_status, NA, tour_count))
+   # no longer need home_status
+   select(-home_status) %>%
+   
+   # create the tour classification
+   group_by(houseid, personid, tour_count)
+   
+  
+  
+
   
 }
 
