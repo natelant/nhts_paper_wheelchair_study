@@ -9,6 +9,10 @@ library(tidyverse)
 library(nhts2017)
 library(lubridate)
 
+# make data easier to test
+trips <- nhts_trips %>%
+  filter(houseid %in% c("40794204", "40794233", "40794241"))
+
 
 # Necessary fields include houseid, personid, strttime, endtime, whyfrom, whyto
 
@@ -53,20 +57,78 @@ build_activities <- function(trips) {
     spread(event, time) %>%
     arrange(arrive, .by_group = TRUE)
   
-  # create columns for visualization 
- activities %>%  mutate(
-      home_status = ifelse(activity == "01", 1, 0),
-      tour_count = cumsum(home_status),
-      tour_count = ifelse(home_status, NA, tour_count))
-   # no longer need home_status
-   select(-home_status) %>%
-   
-   # create the tour classification
-   group_by(houseid, personid, tour_count)
-   
-  
-  
-
   
 }
 
+
+
+# This function takes the activities list and numbers and classifies the tours each 
+# person takes during the day
+
+build_tours <- function(activities) {
+  
+  # create columns for tour count 
+  activity_list <- activities %>% mutate(
+    home_status = ifelse(activity == "01", 1, 0),
+    tour_count = cumsum(home_status),
+    # this goes in mutate to make home activites not a part of a tour
+    tour_count = ifelse(home_status, NA, tour_count)
+    ) %>%
+    # no longer need home_status
+    select(-home_status)
+    
+    # create the tour classification
+    # create column of each classification.
+   # outputs list of tours (not activities)
+    tour_list <- activity_list %>% 
+      group_by(houseid, personid, tour_count) %>%
+      summarise(tour_list = paste(activity, collapse = " ")) %>%
+      mutate(tour_class = case_when(
+                           str_detect(tour_list, "03") == T ~ "W",
+                           str_detect(tour_list, "04") == T ~ "W", 
+                           str_detect(tour_list, "08") == T ~ "S",
+                           str_detect(tour_list, "01") == T ~ "home",
+                           TRUE ~ "NM"
+                           )) %>%
+      # filter out the tours that are "home" because technically they aren't even tours.
+      filter(tour_class != "home")
+      
+      # join back onto activites to create the classification column
+    activity_list %>%
+      left_join(tour_list, by = c("houseid", "personid", "tour_count")) %>%
+      # eliminate tour_list
+      select(-tour_list)
+      
+  
+}
+
+
+
+
+# stack overflow
+fruit <- c("apple", "banana", "pear", "pinapple")
+str_detect(fruit, "a", "p")
+str_detect(fruit, "^a")
+str_detect(fruit, "a$")
+str_detect(fruit, "b")
+str_detect(fruit, "[aeiou]")
+str_detect(fruit, c("ap", "na", "bo"))
+
+
+
+# new example
+string <- "Awesome Sale in Spain"
+mystring <- "18 19 03 04"
+cities <- c('Edinburgh', 'London', 'Spain')
+mytour <- c("04", "03")
+cities[sapply(cities, grepl, string)]
+mytour[sapply(mytour, grepl, mystring)]
+# bigger example
+df <- data.frame(Page.Title = c("Awesome Sale in Spain", "Spain Holidays", "Edinburgh Castles", "London Houses", "Cars in Greece"),
+                 Event.Label = c("pool", "pool", "sea-view", "help-to-buy", "beach"))
+
+cities <- c('Edinburgh', 'London', 'Spain')
+
+df$cities <- sapply(df$Page.Title, function(title) {
+  city <- cities[sapply(cities, grepl, title)]
+})
