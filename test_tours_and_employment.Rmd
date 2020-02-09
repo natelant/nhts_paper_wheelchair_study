@@ -1,0 +1,31 @@
+---
+title: "Test Wheelchair Employment and Tours"
+author: "Nate Lant"
+date: "2/7/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Test for Tours, and tour classification
+
+```{r test.tour, include=F}
+# see if tours are not getting confused with trips.
+nhts_trips %>% 
+  filter(houseid %in% c(40794204, 40794233, 40794241)) %>%
+  build_activities() %>%
+  print(n = 45)
+
+
+# look at 
+nhts_trips %>% 
+  select(houseid, personid, strttime, endtime, whyfrom, whyto) %>%
+  filter(houseid == 40794233) %>% View()
+```
+
+
+## Distribution of tour classification
