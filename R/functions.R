@@ -102,33 +102,3 @@ build_tours <- function(activities) {
   
 }
 
-
-
-
-# stack overflow
-fruit <- c("apple", "banana", "pear", "pinapple")
-str_detect(fruit, "a", "p")
-str_detect(fruit, "^a")
-str_detect(fruit, "a$")
-str_detect(fruit, "b")
-str_detect(fruit, "[aeiou]")
-str_detect(fruit, c("ap", "na", "bo"))
-
-
-
-# new example
-string <- "Awesome Sale in Spain"
-mystring <- "18 19 03 04"
-cities <- c('Edinburgh', 'London', 'Spain')
-mytour <- c("04", "03")
-cities[sapply(cities, grepl, string)]
-mytour[sapply(mytour, grepl, mystring)]
-# bigger example
-df <- data.frame(Page.Title = c("Awesome Sale in Spain", "Spain Holidays", "Edinburgh Castles", "London Houses", "Cars in Greece"),
-                 Event.Label = c("pool", "pool", "sea-view", "help-to-buy", "beach"))
-
-cities <- c('Edinburgh', 'London', 'Spain')
-
-df$cities <- sapply(df$Page.Title, function(title) {
-  city <- cities[sapply(cities, grepl, title)]
-})
