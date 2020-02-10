@@ -29,3 +29,13 @@ nhts_trips %>%
 
 
 ## Distribution of tour classification
+Filter by MSA size
+
+
+## Comparison of Tour Classification by Ability
+Join with person characteristics
+
+
+
+
+
