@@ -9,27 +9,35 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+## FUNCTION READ IN FROM 03_methodology.rmd
+
+# read in the trips file
+trips_edited <- read_rds("data/nhts_data.rds")
+persons_edited <- read_rds("data/persons.rds")
 ```
 
 ## Test for Tours, and tour classification
 
 ```{r test.tour, include=F}
-# see if tours are not getting confused with trips.
-nhts_trips %>% 
-  filter(houseid %in% c(40794204, 40794233, 40794241)) %>%
-  build_activities() %>%
-  print(n = 45)
-
-
-# look at 
-nhts_trips %>% 
-  select(houseid, personid, strttime, endtime, whyfrom, whyto) %>%
-  filter(houseid == 40794233) %>% View()
+# filter people that are in regular sized cities
+tours <- read_rds("data/tours_msa.rds")
 ```
 
 
 ## Distribution of tour classification
-Filter by MSA size
+Of individuals that make tours and filtered by MSA size (03) and individuals ages 18-65, below 
+is the distribution of tour classification.
+
+```{r distribution.tourclass, echo=F}
+# histogram of tours
+tours %>%
+  ggplot(aes(x = tour_count, color = tour_class)) +
+  geom_freqpoly()
+
+tours %>% distributions(tour_class)
+
+```
 
 
 ## Comparison of Tour Classification by Ability

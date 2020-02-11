@@ -4,6 +4,8 @@ bibliography: biblio.bib
 output: 
   html_document:
     code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 The NHTS asks respondents if they have “a temporary or permanent condition or handicap that makes it difficult to travel outside of the home.” If they respond yes, the NHTS asks follow-up questions about the mobility devices they use, such as canes or wheelchairs. It also asks follow-up questions about how the condition affects their travel—for example, by limiting their driving to daytime. For the rest of this report, “people with disabilities” refers to people who report having travel-limiting disabilities [@Brumbaugh2018].
 
