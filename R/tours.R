@@ -3,6 +3,17 @@
 
 # filter people that are in regular sized cities
 # filter people that are between 18 and 65
+library(tidyverse)
+library(nhts2017)
+library(lubridate)
+source("R/functions.R")
+
+# This rds file comes from 01_combine.R
+# Join persons, households, and trips together into one data set.
+# select only the relevant columns (easy to add more variables later)
+trips_edited <- read_rds("data/nhts_data.rds")
+persons_edited <- read_rds("data/persons.rds")
+
 trips_edited %>%
   filter(r_age > 17,
          r_age < 65,

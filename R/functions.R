@@ -5,13 +5,13 @@
 #' @return A `tibble` with one row per activity for each person in the NHTS dataset.
 #'
 #'
-library(tidyverse)
-library(nhts2017)
-library(lubridate)
+# library(tidyverse)
+# library(nhts2017)
+# library(lubridate)
 
 # make data easier to test
-trips <- nhts_trips %>%
-  filter(houseid %in% c("40794204", "40794233", "40794241"))
+# trips <- nhts_trips %>%
+  # filter(houseid %in% c("40794204", "40794233", "40794241"))
 
 
 # Necessary fields include houseid, personid, strttime, endtime, whyfrom, whyto
@@ -68,24 +68,26 @@ build_activities <- function(trips) {
 build_tours <- function(activities) {
   
   # create columns for tour count 
-  activity_list <- activities %>% mutate(
-    home_status = ifelse(activity == "01", 1, 0),
-    tour_count = cumsum(home_status),
-    # this goes in mutate to make home activites not a part of a tour
-    tour_count = ifelse(home_status, NA, tour_count)
+  activity_list <- activities %>% 
+    mutate(
+      home_status = ifelse(activity == "01", 1, 0),
+      tour_count = cumsum(home_status),
+      # this goes in mutate to make home activites not a part of a tour
+      tour_count = ifelse(home_status, NA, tour_count)
     ) %>%
     # no longer need home_status
     select(-home_status)
     
     # create the tour classification
     # create column of each classification.
-   # outputs list of tours (not activities)
+    # outputs list of tours (not activities)
     tour_list <- activity_list %>% 
       group_by(houseid, personid, tour_count) %>%
       summarise(tour_list = paste(activity, collapse = " ")) %>%
       mutate(tour_class = case_when(
                            str_detect(tour_list, "03") == T ~ "W",
                            str_detect(tour_list, "04") == T ~ "W", 
+                           # I don't know if school or work will take priority
                            str_detect(tour_list, "08") == T ~ "S",
                            str_detect(tour_list, "01") == T ~ "home",
                            TRUE ~ "NM"
@@ -102,3 +104,26 @@ build_tours <- function(activities) {
   
 }
 
+
+
+# This function is designed to create a table of distributions by ability type for each factor in 
+# a variable (i.e. income, age, worker status etc.)
+distributions <- function(data, variable){
+  
+  quote_var <- enquo(variable)
+  
+  data %>% 
+    filter(Ability != "NA", 
+           !!quote_var != "NA") %>%
+    # Calculate number of people in each combination of income and ability.
+    group_by(Ability, !!quote_var) %>%
+    summarise(population = sum(wtperfin)) %>%
+    mutate(Population = population,
+           `Distribution(%)` = 
+             percent(population/sum(population), 
+                     accuracy = 0.1),
+           Variable = as.factor(!!quote_var)) %>%
+    select(Ability, Variable, `Distribution(%)`) %>%
+    spread(Ability, `Distribution(%)`)
+  
+}

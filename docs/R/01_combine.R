@@ -37,7 +37,8 @@ nhts_persons %>%
               mutate(
                 trpmiles = as.double(trpmiles),
                      ) %>%
-              select(houseid, personid, tdtrpnum, trptrans, trvlcmin, trpmiles, psgr_flg, trippurp),
+              select(houseid, personid, tdtrpnum, trptrans, trvlcmin, trpmiles, psgr_flg, trippurp,
+                     strttime, endtime, whyfrom, whyto),
             # maybe i will need to filter the trip data (miles > 0, exclude the -9s and -1s and stuff)
             by = c("houseid", "personid")) %>%
   
