@@ -1,33 +1,85 @@
 ---
-title: "Test Wheelchair Employment and Tours"
+title: "Trips, Activities, and Tours"
 author: "Nate Lant"
 date: "2/7/2020"
-output: html_document
-editor_options: 
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-## FUNCTION READ IN FROM 03_methodology.rmd
+## FUNCTION READ IN FROM 
+source("R/functions.R")
+library(tidyverse)
+library(nhts2017)
+library(scales)
+library(pander)
+library(lubridate)
+
+# for help understanding the kableExtra library 
+# (https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
+# there may be some issues with this table going to html vs pdf and latex
+library(kableExtra)
+library(Stack)
 
 # read in the trips file
 trips_edited <- read_rds("data/nhts_data.rds")
 persons_edited <- read_rds("data/persons.rds")
-```
-
-## Test for Tours, and tour classification
-
-```{r test.tour, include=F}
 # filter people that are in regular sized cities
 tours <- read_rds("data/tours_msa.rds")
 ```
 
 
-## Distribution of tour classification
-Of individuals that make tours and filtered by MSA size (03) and individuals ages 18-65, below 
-is the distribution of tour classification.
+
+# Trips
+The NHTS survey collects data on each person about every trip they take (note that some people did not 
+take any trips). In this data set, we will filter the number of trips by 
+* people ages 18-65
+* MSA size 500,000 - 999,999 (a little smaller than Salt Lake County)
+
+```{r trips.data, echo=F}
+# trips edited comes from joining the persons file with trips. Includes individuals with 0 trips
+trips_print <- trips_edited %>%
+  select(houseid, personid, strttime, endtime, whyfrom, whyto)
+
+trips_print %>% head(n = 15)
+
+```
+
+# Activities
+Each trip goes from one activity to the next. By manipulating the data set, we can create a list of
+activities based on the purpose and duration of each trip.
+
+```{r activities.data, echo=F}
+activities_print <- trips_print %>% 
+  filter(houseid %in% c(30000007, 30000008, 30000012)) %>%
+  build_activities()
+
+activities_print %>% head(n= 15)
+```
+
+# Tours
+A tour is a collection of activities from when you leave home to when you return home. Often, people 
+take more than one tour per day. Tours are classified as Mandatory (work or school), Non-Mandatory, 
+and Home. For the purpose here, we label each tour as "W" for work, "S" for school, and "NM" for
+non-mandatory (everything else). Home trips will show up as NA for now.
+
+```{r tours.data, echo=F}
+tours_print <- activities_print %>%
+  build_tours() %>%
+  left_join(persons_edited) %>%
+  select(houseid:tour_class, Ability:Worker)
+
+tours_print %>% head(n=15)
+```
+
+
+## Distribution 
+What kinds of people are making 
 
 ```{r distribution.tourclass, echo=F}
 # histogram of tours
