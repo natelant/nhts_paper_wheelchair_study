@@ -23,6 +23,9 @@ nhts_tours <- trips_edited %>%
   add_tours() 
 
 persons_edited %>%
+  filter(r_age > 18,
+         r_age < 65, 
+         msasize == "04") %>%
   left_join(nhts_tours) %>%
   # for those who did not make a trip, show that they stayed home
   # and maybe made cookies
