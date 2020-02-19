@@ -1,4 +1,4 @@
-name: "my-website"
+name: "WAVs On-Demand"
 output_dir: "docs"
 navbar:
   title: "WAV"
@@ -9,4 +9,6 @@ navbar:
       href: literature.html
     - text: "Methodology"
       href: "03_methodology.html"
+    - text: "Tour Attributes"
+      href: "test_tours_and_employment.html"
     

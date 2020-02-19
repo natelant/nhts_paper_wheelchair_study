@@ -4,21 +4,19 @@ author: "Nate Lant"
 date: "2/7/2020"
 output:
   html_document: default
-  pdf_document: default
-editor_options:
-  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 ## FUNCTION READ IN FROM 
-source("R/functions.R")
+
 library(tidyverse)
 library(nhts2017)
 library(scales)
 library(pander)
 library(lubridate)
+source("R/functions.R")
 
 # for help understanding the kableExtra library 
 # (https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
@@ -27,10 +25,16 @@ library(kableExtra)
 library(Stack)
 
 # read in the trips file
-trips_edited <- read_rds("data/nhts_data.rds")
-persons_edited <- read_rds("data/persons.rds")
-# filter people that are in regular sized cities
-tours <- read_rds("data/tours_msa.rds")
+trips_edited <- read_rds("data/nhts_data.rds") %>%
+  filter(r_age > 18,
+         r_age < 65, 
+         msasize == "04")
+persons_edited <- read_rds("data/persons.rds") %>%
+  filter(r_age > 18,
+         r_age < 65, 
+         msasize == "04")
+# already filters people that are in regular sized cities
+activities <- read_rds("data/activities_msa.rds")
 ```
 
 
@@ -38,62 +42,64 @@ tours <- read_rds("data/tours_msa.rds")
 # Trips
 The NHTS survey collects data on each person about every trip they take (note that some people did not 
 take any trips). In this data set, we will filter the number of trips by 
-* people ages 18-65
-* MSA size 500,000 - 999,999 (a little smaller than Salt Lake County)
 
-```{r trips.data, echo=F}
+* people ages 18-65
+
+* MSA size 1,000,000 - 2,999,999
+
+```{r trips.data, echo=F, message=F, warning=F}
 # trips edited comes from joining the persons file with trips. Includes individuals with 0 trips
 trips_print <- trips_edited %>%
   select(houseid, personid, strttime, endtime, whyfrom, whyto)
 
-trips_print %>% head(n = 15)
+trips_print %>% 
+  head(n = 5) %>% 
+  formattable::formattable()
 
 ```
 
 # Activities
 Each trip goes from one activity to the next. By manipulating the data set, we can create a list of
-activities based on the purpose and duration of each trip.
+activities based on the purpose and duration of each trip using `build_activities`.
 
-```{r activities.data, echo=F}
+```{r activities.data, echo=F, message=F, warning=F}
 activities_print <- trips_print %>% 
-  filter(houseid %in% c(30000007, 30000008, 30000012)) %>%
+  filter(houseid %in% c(30000301, 30000309, 30000312)) %>%
   build_activities()
 
-activities_print %>% head(n= 15)
+activities_print %>% 
+  head(n= 5) %>% 
+  formattable::formattable()
 ```
 
-# Tours
+# Activities with Tour Attributes
+Using the function `add_tour()` each activity can be assigned to a daily activity pattern (DAP) which 
+describes the type of tour or group of tours a person makes during the day.
 A tour is a collection of activities from when you leave home to when you return home. Often, people 
 take more than one tour per day. Tours are classified as Mandatory (work or school), Non-Mandatory, 
 and Home. For the purpose here, we label each tour as "W" for work, "S" for school, and "NM" for
 non-mandatory (everything else). Home trips will show up as NA for now.
 
-```{r tours.data, echo=F}
-tours_print <- activities_print %>%
-  build_tours() %>%
-  left_join(persons_edited) %>%
-  select(houseid:tour_class, Ability:Worker)
-
-tours_print %>% head(n=15)
+```{r tours.data, echo=F, message=F, warning=F}
+activities %>% 
+  select(houseid, personid, activity, activity_number, arrive, 
+         depart, tour_count, tour_class, DAP) %>%
+  head(n=5) %>% 
+  formattable::formattable()
 ```
 
 
-## Distribution 
-What kinds of people are making 
+## Distribution of DAP
+What kinds of daily activity patterns (DAP) are being made by people with disabilities?
 
-```{r distribution.tourclass, echo=F}
-# histogram of tours
-tours %>%
-  ggplot(aes(x = tour_count, color = tour_class)) +
-  geom_freqpoly()
-
-tours %>% distributions(tour_class)
+```{r distribution.tourclass, echo=F, warning=F, message=F}
+# Distribution table (percent of activities not persons)
+activities %>% 
+  distributions(DAP) %>% 
+  pander()
 
 ```
 
-
-## Comparison of Tour Classification by Ability
-Join with person characteristics
 
 
 
