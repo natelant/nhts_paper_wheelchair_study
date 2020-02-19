@@ -14,6 +14,10 @@ source("R/functions.R")
 trips_edited <- read_rds("data/nhts_data.rds")
 persons_edited <- read_rds("data/persons.rds")
 
+
+
+# ===================================================================
+# Write activities with tour attributes and person attributes.
 nhts_tours <- trips_edited %>%
   filter(r_age > 18,
          r_age < 65, 
@@ -34,8 +38,16 @@ persons_edited %>%
   # this takes a while to run, lets at least save it
   write_rds("data/activities_msa.rds") 
 
-#test
-mytest <- read_rds("data/activities_msa.rds") %>% 
-  select(houseid, personid, activity, activity_number, tour_count, tour_class, DAP, arrive, depart)
 
-unique(mytest$DAP)
+# ===================================================================
+# write tours with person attributes
+# list of persons
+
+read_rds("data/activities_msa.rds") %>%
+  build_tours() %>%
+  left_join(
+    persons_edited %>% 
+      select(houseid, personid, Ability, r_age, Age, Worker, hhfaminc, Income, msasize, health),
+    by = c("houseid", "personid")
+  ) %>%
+  write_rds("data/tours.rds")

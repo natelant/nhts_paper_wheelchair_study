@@ -14,7 +14,7 @@
    filter(houseid %in% c("40793049", "40793216", "40793969", "40793969"))
  
  trips <- nhts_trips %>%
-   filter(houseid == "40793216")
+   filter(houseid == "30000539")
 
 
 # Necessary fields include houseid, personid, strttime, endtime, whyfrom, whyto
@@ -135,7 +135,11 @@ add_tours <- function(activities) {
 
 build_tours <- function(activities){
   
-  mytour_count <- activities %>%
+  # adds column that starts counting tours
+  mytour_count <- myactivities %>%
+    # eliminate unnecessary columns
+    select(houseid, personid, activity, activity_number, arrive, depart) %>%
+    group_by(houseid, personid) %>%
     # set a home status to create a cumulative count
     mutate(
       home_status = ifelse(activity == "01", 1, 0),
@@ -144,6 +148,7 @@ build_tours <- function(activities){
       tour_count = ifelse(home_status, NA, tour_count)
     )
   
+  # collapse tours into persons with DAPs
   dap_class <- mytour_count %>% 
     # include group_by tour_count so the list is by tours not persons
     group_by(houseid, personid, tour_count) %>%
@@ -174,7 +179,7 @@ build_tours <- function(activities){
     ))
   
   ## ======================================================================
-  # joins with the daps created
+  # joins persons with activities lists (tours) with the daps created
   mytour_count %>%
     # collapse the activities into the day_plan column
     group_by(houseid, personid) %>%
