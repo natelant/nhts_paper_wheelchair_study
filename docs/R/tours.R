@@ -14,7 +14,11 @@ source("R/functions.R")
 trips_edited <- read_rds("data/nhts_data.rds")
 persons_edited <- read_rds("data/persons.rds")
 
-nhts_tours <- trips_edited %>%
+
+
+# ===================================================================
+# Write activities with tour attributes and person attributes.
+nhts_activities <- trips_edited %>%
   filter(r_age > 18,
          r_age < 65, 
          msasize == "04") %>%
@@ -26,7 +30,7 @@ persons_edited %>%
   filter(r_age > 18,
          r_age < 65, 
          msasize == "04") %>%
-  left_join(nhts_tours) %>%
+  left_join(nhts_activities) %>%
   # for those who did not make a trip, show that they stayed home
   # and maybe made cookies
   mutate(tour_class = ifelse(is.na(activity), "H", tour_class)) %>%
@@ -34,8 +38,23 @@ persons_edited %>%
   # this takes a while to run, lets at least save it
   write_rds("data/activities_msa.rds") 
 
-#test
-mytest <- read_rds("data/activities_msa.rds") %>% 
-  select(houseid, personid, activity, activity_number, tour_count, tour_class, DAP, arrive, depart)
 
-unique(mytest$DAP)
+# ===================================================================
+# write tours with person attributes
+# list of persons
+
+full_tours <- read_rds("data/activities_msa.rds") %>%
+  build_tours() 
+
+# joins tours onto persons (includes persons that make 0 tours aka "H")
+persons_edited %>%
+  filter(r_age > 18,
+         r_age < 65, 
+         msasize == "04") %>%
+  select(houseid, personid, Ability, r_age, Age, Worker, hhfaminc, 
+         Income, msasize, health, wtperfin) %>%
+  left_join(full_tours, by = c("houseid", "personid")) %>%
+  
+  write_rds("data/tours.rds")
+  
+

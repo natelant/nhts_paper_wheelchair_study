@@ -34,7 +34,8 @@ persons_edited <- read_rds("data/persons.rds") %>%
          r_age < 65, 
          msasize == "04")
 # already filters people that are in regular sized cities
-activities <- read_rds("data/activities_msa.rds")
+myactivities <- read_rds("data/activities_msa.rds")
+mytours <- read_rds("data/tours.rds")
 ```
 
 
@@ -64,7 +65,7 @@ activities based on the purpose and duration of each trip using `build_activitie
 
 ```{r activities.data, echo=F, message=F, warning=F}
 activities_print <- trips_print %>% 
-  filter(houseid %in% c(30000301, 30000309, 30000312)) %>%
+  filter(houseid %in% c("30000301", "30000309", "30000312")) %>%
   build_activities()
 
 activities_print %>% 
@@ -81,9 +82,17 @@ and Home. For the purpose here, we label each tour as "W" for work, "S" for scho
 non-mandatory (everything else). Home trips will show up as NA for now.
 
 ```{r tours.data, echo=F, message=F, warning=F}
-activities %>% 
+myactivities %>% 
   select(houseid, personid, activity, activity_number, arrive, 
          depart, tour_count, tour_class, DAP) %>%
+  head(n=5) %>% 
+  formattable::formattable()
+```
+
+# Tours
+Using the `build_tours()` function, a list of activities can be converted into tours--which is the same list of persons.
+```{r tours, echo=F, message=F, warning=F}
+mytours %>%
   head(n=5) %>% 
   formattable::formattable()
 ```
@@ -93,10 +102,14 @@ activities %>%
 What kinds of daily activity patterns (DAP) are being made by people with disabilities?
 
 ```{r distribution.tourclass, echo=F, warning=F, message=F}
-# Distribution table (percent of activities not persons)
-activities %>% 
+# Distribution table (percent of persons)
+mytours %>% 
   distributions(DAP) %>% 
-  pander()
+  pander(caption = "Daily Tours (List of Persons)")
+
+myactivities %>% 
+  distributions(DAP) %>% 
+  pander(caption = "Daily Activities (List of Activities)")
 
 ```
 

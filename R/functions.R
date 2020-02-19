@@ -136,7 +136,7 @@ add_tours <- function(activities) {
 build_tours <- function(activities){
   
   # adds column that starts counting tours
-  mytour_count <- myactivities %>%
+  mytour_count <- activities %>%
     # eliminate unnecessary columns
     select(houseid, personid, activity, activity_number, arrive, depart) %>%
     group_by(houseid, personid) %>%
@@ -158,6 +158,7 @@ build_tours <- function(activities){
       str_detect(tour_list, "04") == T ~ "W",
       str_detect(tour_list, "08") == T ~ "S",
       str_detect(tour_list, "01") == T ~ "home",
+      str_detect(tour_list, "NA") == T ~ "H",
       TRUE ~ "NM"
     )) %>%
     # filter out the tours that are "home" because technically they aren't even tours.
@@ -173,6 +174,7 @@ build_tours <- function(activities){
       str_detect(tours_row, "W") == T ~ "W_1",
       str_detect(tours_row, "S-S") == T ~ "S_2",
       str_detect(tours_row, "S") == T ~ "S_1",
+      str_detect(tours_row, "H") == T ~ "H",
       TRUE ~ "NM"
       # still leaves the question, what about a tour like H-W-W-W == W-2?
       # this would need to be figured out somewhere else...
