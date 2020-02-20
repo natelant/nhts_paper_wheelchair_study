@@ -1,0 +1,69 @@
+---
+title: "Compare to the ACS data"
+author: "Nate Lant"
+date: "2/19/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# install.packages("devtools")
+# devtools::install_github("byu-transpolab/nhts2017")
+library(nhts2017)
+library(tidyverse)
+library(scales)
+library(pander)
+
+# for help understanding the kableExtra library 
+# (https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
+# there may be some issues with this table going to html vs pdf and latex
+library(kableExtra)
+library(Stack)
+
+source("R/functions.R")
+```
+
+## American Community Survey
+The ACS provides information on disability status and can be used to validate fidings from the NHTS. 
+The tables can be found [here](https://data.census.gov/cedsci/table?q=S18&d=ACS%201-Year%20Estimates%20Subject%20Tables&tid=ACSST1Y2018.S1810&vintage=2018)
+
+## NHTS Data on Disabilities
+
+```{r compare}
+my_persons <- read_rds("data/persons.rds")
+
+# create column for just abled and disabled
+acs <- my_persons %>% 
+  filter(r_age > 16) %>%
+  mutate(status = case_when( medcond == "01" ~ "Disabled", 
+                             medcond == "02" ~ "Abled",
+                             TRUE ~ "NA"),
+         Employment = case_when( worker == "01" ~ "Employed",
+                                 worker == "02" ~ "Not in Labor Force",
+                                 TRUE ~ "NA")) %>%
+  filter(status != "NA", 
+         Employment != "NA") 
+
+# calulate statistics from the data
+acs %>%
+  group_by(status, Employment) %>%
+  summarise(population = sum(wtperfin)) %>%
+  mutate(distribution = population/sum(population),
+         variable = as_factor(Employment)) %>%
+  select(status, Employment, distribution) %>%
+  spread(status, distribution) %>%
+  
+  left_join(
+    acs %>% 
+      group_by(Employment) %>%
+      summarise(population = sum(wtperfin)) %>%
+      mutate(Overall = population/sum(population)) %>%
+      select(-population)
+  )
+
+```
+
+## NHTS Data including Wheelchair and Part-time Employment
