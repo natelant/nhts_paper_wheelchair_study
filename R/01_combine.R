@@ -24,7 +24,7 @@ library(tidyverse)
 
 nhts_persons %>%
   select(houseid, personid, w_chair, w_mtrchr, w_scootr, 
-         medcond6, medcond, r_age, wkftpt, wtperfin, health
+         medcond6, medcond, r_age, wkftpt, wtperfin, health, worker
          ) %>%
   left_join(nhts_households %>% 
               # I only need a couple variables from the household file
