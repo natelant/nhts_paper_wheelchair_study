@@ -2,7 +2,9 @@
 title: "Compare to the ACS data"
 author: "Nate Lant"
 date: "2/19/2020"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
 editor_options: 
   chunk_output_type: console
 ---
@@ -24,45 +26,170 @@ library(kableExtra)
 library(Stack)
 
 source("R/functions.R")
+
+my_nhts <- read_rds("data/nhts_data.rds")
+my_persons <- read_rds("data/persons.rds")
 ```
 
 ## American Community Survey
 The ACS provides information on disability status and can be used to validate fidings from the NHTS. 
-The tables can be found [here](https://data.census.gov/cedsci/table?q=S18&d=ACS%201-Year%20Estimates%20Subject%20Tables&tid=ACSST1Y2018.S1810&vintage=2018)
+The tables can be found [here.](https://data.census.gov/cedsci/table?q=S18&d=ACS%201-Year%20Estimates%20Subject%20Tables&tid=ACSST1Y2018.S1810&vintage=2018)
 
 ## NHTS Data on Disabilities
+Different from the previous page, this table of distributions only compares the abled population and the
+disabled population. This table also includes an "Overall" column which shows the distribution of the total
+civilian population.
 
-```{r compare}
-my_persons <- read_rds("data/persons.rds")
+The variables and grouping of variables are designed to match the ACS variables (i.e. age, mode, education)
 
+```{r mutate.data, echo=F}
+# people data for employment and education comparison
 # create column for just abled and disabled
-acs <- my_persons %>% 
+data <- nhts_persons %>% 
   filter(r_age > 16) %>%
   mutate(status = case_when( medcond == "01" ~ "Disabled", 
                              medcond == "02" ~ "Abled",
                              TRUE ~ "NA"),
          Employment = case_when( worker == "01" ~ "Employed",
                                  worker == "02" ~ "Not in Labor Force",
-                                 TRUE ~ "NA")) %>%
+                                 TRUE ~ "NA"),
+         Education = case_when( educ == "01" ~ "Less than high school graduate",
+                           educ == "02" ~ "High school graduate (or equivalent)",
+                           educ == "03" ~ "Some college or associates degree",
+                           educ == "04" | educ == "05" ~ "Bachelor's degree or higher",
+                           TRUE ~ "NA"),
+         Education = fct_relevel(Education, "Less than high school graduate",
+                                 "High school graduate (or equivalent)", 
+                                 "Some college or associates degree",
+                                 "Bachelor's degree or higher")
+         ) %>%
   filter(status != "NA", 
-         Employment != "NA") 
+         Employment != "NA",
+         Education != "NA") 
 
-# calulate statistics from the data
-acs %>%
-  group_by(status, Employment) %>%
+# trips data for mode choice
+trips_data <- my_nhts %>%
+  filter(r_age > 16,
+         whyto == "03") %>%
+  mutate(status = case_when( medcond == "01" ~ "Disabled", 
+                             medcond == "02" ~ "Abled",
+                             TRUE ~ "NA"),
+         Employment = case_when( worker == "01" ~ "Employed",
+                                 worker == "02" ~ "Not in Labor Force",
+                                 TRUE ~ "NA"),
+         Commute = case_when(wrk_home == "01" ~ "Work from Home",
+           
+                             psgr_flg == "02" & trptrans == "03" ~ "Car/Van/Truck (Driver)",
+                             psgr_flg == "02" & trptrans == "04" ~ "Car/Van/Truck (Driver)",
+                             psgr_flg == "02" & trptrans == "05" ~ "Car/Van/Truck (Driver)",
+                             psgr_flg == "02" & trptrans == "06" ~ "Car/Van/Truck (Driver)",
+                             # 
+                             psgr_flg == "01" & trptrans == "03" ~ "Car/Van/Truck (Passenger)",
+                             psgr_flg == "01" & trptrans == "04" ~ "Car/Van/Truck (Passenger)",
+                             psgr_flg == "01" & trptrans == "05" ~ "Car/Van/Truck (Passenger)",
+                             psgr_flg == "01" & trptrans == "06" ~ "Car/Van/Truck (Passenger)",
+                            
+                             trptrans == "01" ~ "Walk",
+                             
+                             trptrans == "11" | trptrans == "16"  ~ "Local Transit",
+                             
+                             TRUE  ~ "Taxi/Motorcycle/Bike or Other"
+                     )) %>%
+  filter(status != "NA")
+  
+```
+
+```{r function.data, echo=F}
+
+# Build funciton to create distribution table that includes the total distribution
+
+build_table <- function(data, variable){
+  
+  quote_var <- enquo(variable)
+  
+  # calulate statistics from the data
+data %>%
+  group_by(status, !!quote_var) %>%
   summarise(population = sum(wtperfin)) %>%
-  mutate(distribution = population/sum(population),
-         variable = as_factor(Employment)) %>%
-  select(status, Employment, distribution) %>%
+  mutate(distribution = percent(population/sum(population), accuracy = 0.1),
+         Variable = as.factor(!!quote_var)) %>%
+  select(status, Variable, distribution) %>%
   spread(status, distribution) %>%
   
   left_join(
-    acs %>% 
-      group_by(Employment) %>%
+    data %>% 
+      group_by(!!quote_var) %>%
       summarise(population = sum(wtperfin)) %>%
-      mutate(Overall = population/sum(population)) %>%
-      select(-population)
+      mutate(Overall = percent(population/sum(population), accuracy = 0.1),
+             Variable = as.factor(!!quote_var)) %>%
+      select(-population, -!!quote_var),
+    by = c("Variable")
   )
+}
+```
+
+## Compare ACS with NHTS
+Note: in comparing mode choice, the NHTS distribution is of total work trips; I don't know how ACS calculates "Commute
+to work".
+```{r comparison.table, echo=F, warning=F, message=F}
+# Building the NHTS distribution table
+emp <- build_table(data, Employment)
+#this is percentage of total trips
+comm <- build_table(trips_data, Commute)
+edu <- build_table(data, Education)
+
+Stack(emp, comm) %>% Stack(edu) %>%
+  
+  
+  # pipe into the kable function
+  kable(caption = "2017 NHTS Data Distribution on Ability") %>%
+  kable_styling("striped", full_width = F) %>%
+  # Specify which row numbers are grouped together (i.e. from 1, to 10)
+  pack_rows("Employment", 1, 2) %>%
+  pack_rows("Commuting to Work", 3, 8) %>%
+  pack_rows("Education", 9, 12) 
+
+```
+
+```{r acs, echo=F, message=F, warning=F}
+
+#=======================================================================
+
+# building the ACS distribution
+emp_acs <- tibble(
+  Variable = c("Employed", "Not in Labor"),
+  Abled = percent(c(0.673, 0.295)),
+  Disabled = percent(c(0.24, 0.762)),
+  Overall = percent(c(0.609, 0.359))
+)
+
+comm_acs <- tibble(
+  Variable = c("Car/Van/Truck (Driver)", "Car/Van/Truck (Passenger)", "Local Transit", 
+               "Taxi/Motorcycle/Bike or Other", "Walk", "Work from Home"),
+  Abled = percent(c(0.767, 0.088, 0.049, 0.025, 0.018, 0.053)),
+  Disabled = percent(c(.711, .116, .051, .033, .027, .061)),
+  Overall = percent(c(0.763, 0.09, 0.049, 0.025, 0.019, 0.053))
+)
+
+edu_acs <- tibble(
+  Variable = c("Less than high school graduate", "High school graduate (or equivalent)", 
+               "Some college or associates degree", "Bachelor's degree or higher"),
+  Abled = percent(c(0.098, 0.253, 0.29, .359)),
+  Disabled = percent(c(0.20, 0.338, .284, .178)),
+  Overall = percent(c(.115, 0.267, 0.289, .33))
+)
+
+Stack(emp_acs, comm_acs) %>% Stack(edu_acs) %>%
+  
+  
+  # pipe into the kable function
+  kable(caption = "2010-2018 ACS Data Distribution on Ability") %>%
+  kable_styling("striped", full_width = F) %>%
+  # Specify which row numbers are grouped together (i.e. from 1, to 10)
+  pack_rows("Employment", 1, 2) %>%
+  pack_rows("Commuting to Work", 3, 8) %>%
+  pack_rows("Education", 9, 12) 
+
 
 ```
 
