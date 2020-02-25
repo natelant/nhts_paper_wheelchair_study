@@ -159,9 +159,9 @@ Stack(emp, comm) %>% Stack(edu) %>%
 # building the ACS distribution
 emp_acs <- tibble(
   Variable = c("Employed", "Not in Labor Force"),
-  ACS_Abled = percent(c(0.673, 0.295)),
-  ACS_Disabled = percent(c(0.24, 0.762)),
-  ACS_Overall = percent(c(0.609, 0.359))
+  Abled = percent(c(0.673, 0.295)),
+  Disabled = percent(c(0.24, 0.762)),
+  Overall = percent(c(0.609, 0.359))
 )
 
 comm_acs <- tibble(

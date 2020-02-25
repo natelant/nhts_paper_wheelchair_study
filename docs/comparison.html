@@ -637,9 +637,9 @@ Bachelor’s degree or higher
 # building the ACS distribution
 emp_acs &lt;- tibble(
   Variable = c(&quot;Employed&quot;, &quot;Not in Labor Force&quot;),
-  ACS_Abled = percent(c(0.673, 0.295)),
-  ACS_Disabled = percent(c(0.24, 0.762)),
-  ACS_Overall = percent(c(0.609, 0.359))
+  Abled = percent(c(0.673, 0.295)),
+  Disabled = percent(c(0.24, 0.762)),
+  Overall = percent(c(0.609, 0.359))
 )
 
 comm_acs &lt;- tibble(
@@ -686,35 +686,17 @@ Disabled
 <th style="text-align:left;">
 Overall
 </th>
-<th style="text-align:left;">
-ACS_Abled
-</th>
-<th style="text-align:left;">
-ACS_Disabled
-</th>
-<th style="text-align:left;">
-ACS_Overall
-</th>
 </tr>
 </thead>
 <tbody>
 <tr grouplength="2">
-<td colspan="7" style="border-bottom: 1px solid;">
+<td colspan="4" style="border-bottom: 1px solid;">
 <strong>Employment</strong>
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
 Employed
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
 </td>
 <td style="text-align:left;">
 67.3%
@@ -731,15 +713,6 @@ NA
 Not in Labor Force
 </td>
 <td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
 29.5%
 </td>
 <td style="text-align:left;">
@@ -750,7 +723,7 @@ NA
 </td>
 </tr>
 <tr grouplength="6">
-<td colspan="7" style="border-bottom: 1px solid;">
+<td colspan="4" style="border-bottom: 1px solid;">
 <strong>Commuting to Work</strong>
 </td>
 </tr>
@@ -767,15 +740,6 @@ Car/Van/Truck (Driver)
 <td style="text-align:left;">
 76.3%
 </td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
@@ -789,15 +753,6 @@ Car/Van/Truck (Passenger)
 </td>
 <td style="text-align:left;">
 9.0%
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
 </td>
 </tr>
 <tr>
@@ -813,15 +768,6 @@ Local Transit
 <td style="text-align:left;">
 4.9%
 </td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
@@ -835,15 +781,6 @@ Taxi/Motorcycle/Bike or Other
 </td>
 <td style="text-align:left;">
 2.5%
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
 </td>
 </tr>
 <tr>
@@ -859,15 +796,6 @@ Walk
 <td style="text-align:left;">
 1.9%
 </td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
@@ -882,18 +810,9 @@ Work from Home
 <td style="text-align:left;">
 5.3%
 </td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
 </tr>
 <tr grouplength="4">
-<td colspan="7" style="border-bottom: 1px solid;">
+<td colspan="4" style="border-bottom: 1px solid;">
 <strong>Education</strong>
 </td>
 </tr>
@@ -910,15 +829,6 @@ Less than high school graduate
 <td style="text-align:left;">
 11.5%
 </td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
@@ -932,15 +842,6 @@ High school graduate (or equivalent)
 </td>
 <td style="text-align:left;">
 26.7%
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
 </td>
 </tr>
 <tr>
@@ -956,15 +857,6 @@ Some college or associates degree
 <td style="text-align:left;">
 28.9%
 </td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
@@ -978,15 +870,6 @@ Bachelor’s degree or higher
 </td>
 <td style="text-align:left;">
 33.0%
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
 </td>
 </tr>
 </tbody>
