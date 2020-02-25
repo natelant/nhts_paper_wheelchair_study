@@ -10,9 +10,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Nate Lant" />
 
 
-<title>Methodology</title>
+<title>Compare to the ACS data</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -311,109 +312,28 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Methodology</h1>
+<h1 class="title toc-ignore">Compare to the ACS data</h1>
+<h4 class="author">Nate Lant</h4>
+<h4 class="date">2/19/2020</h4>
 
 </div>
 
 
-<p>The NHTS asks respondents if they have “a temporary or permanent condition or handicap that makes it difficult to travel outside of the home.” If they respond yes, the NHTS asks follow-up questions about the mobility devices they use, such as canes or wheelchairs. It also asks follow-up questions about how the condition affects their travel—for example, by limiting their driving to daytime. For the rest of this report, “people with disabilities” refers to people who report having travel-limiting disabilities <span class="citation">(Brumbaugh 2018)</span>.</p>
-<p>In this study, the population was divided into three groups: Disabled individuals who reported using a wheelchair (either mechanical, manual or both) or scooter are labeled <em>“Wheelchair”</em>; disabled individuals (excluding those who use a wheelchair or scooter) are labeled <em>“Disabled”</em>; and the general population who did not report a “travel-limiting” disability are labeled <em>“Abled”</em>.</p>
-<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
-
-# install.packages(&quot;devtools&quot;)
-# devtools::install_github(&quot;byu-transpolab/nhts2017&quot;)
-library(nhts2017)
-library(tidyverse)
-library(scales)
-library(pander)
-
-# for help understanding the kableExtra library 
-# (https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
-# there may be some issues with this table going to html vs pdf and latex
-library(kableExtra)
-library(Stack)
-
-source(&quot;R/functions.R&quot;)</code></pre>
-<table style="width:69%;">
-<caption>Counts and Distribution of Population</caption>
-<colgroup>
-<col width="18%" />
-<col width="12%" />
-<col width="18%" />
-<col width="20%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">Ability</th>
-<th align="center">Survey</th>
-<th align="center">Population</th>
-<th align="center">Distribution</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">Abled</td>
-<td align="center">236051</td>
-<td align="center">271384034</td>
-<td align="center">91.4%</td>
-</tr>
-<tr class="even">
-<td align="center">Disabled</td>
-<td align="center">20801</td>
-<td align="center">21048869</td>
-<td align="center">7.1%</td>
-</tr>
-<tr class="odd">
-<td align="center">Wheelchair</td>
-<td align="center">4335</td>
-<td align="center">4354116</td>
-<td align="center">1.5%</td>
-</tr>
-</tbody>
-</table>
-<div id="data-and-data-description" class="section level2">
-<h2>Data and Data Description</h2>
-<p>The table below considers variables that are included in the model, as they are probable perameters in influencing trip count by purpose. The table displays the population distribution for each ability group, for example, 47.1% of the “Wheelchair” population is in the Low income group. Then that raises the question, is number of trips more infuenced by income or by ability?</p>
-<pre class="r"><code># This table will show all the variables useful for the regression model and show the distribution for each 
-# of the populations: Abled, Disabled, Wheelchair
-
-# the final.rds data has the full grid with all of the trip purpose tally per person (in addition to the 
-# entire persons attribute file)
-my_nhts &lt;- read_rds(&quot;data/nhts_data.rds&quot;)
-my_persons &lt;- read_rds(&quot;data/persons.rds&quot;)
-
-# use the distribution function built for this project to construct the distribution tables
-age &lt;- distributions(my_persons, Age)
-income.actual &lt;- distributions(my_persons, hhfaminc)
-income &lt;- distributions(my_persons, Income)
-work &lt;- distributions(my_persons, Worker)
-mode &lt;- distributions(my_nhts, Mode)
-msa &lt;- distributions(my_persons, pop_size)
-healthy &lt;- distributions(my_persons, health)
-       
-
-
-# now the stacking part. only one at a time please :)
-Stack(age, income) %&gt;% 
-  Stack(work) %&gt;%
-  Stack(mode) %&gt;%
-  Stack(msa) %&gt;%
-  Stack(healthy) %&gt;%
-  
-  
-  # pipe into the kable function
-  kable(caption = &quot;2017 NHTS Data Distribution&quot;) %&gt;%
-  kable_styling(&quot;striped&quot;, full_width = F) %&gt;%
-  # Specify which row numbers are grouped together (i.e. from 1, to 10)
-  pack_rows(&quot;Age&quot;, 1, 10) %&gt;%
-  pack_rows(&quot;Income Group&quot;, 11, 14) %&gt;%
-  pack_rows(&quot;Worker Status&quot;, 15, 17) %&gt;%
-  pack_rows(&quot;Mode Choice&quot;, 18, 26) %&gt;%
-  pack_rows(&quot;MSA Population Size&quot;, 27, 32) %&gt;%
-  pack_rows(&quot;Personal Opinion of Health&quot;, 33, 39)</code></pre>
+<div id="american-community-survey" class="section level2">
+<h2>American Community Survey</h2>
+<p>The ACS provides information on disability status and can be used to validate fidings from the NHTS. The tables can be found <a href="https://data.census.gov/cedsci/table?q=S18&amp;d=ACS%201-Year%20Estimates%20Subject%20Tables&amp;tid=ACSST1Y2018.S1810&amp;vintage=2018">here.</a></p>
+</div>
+<div id="nhts-data-on-disabilities" class="section level2">
+<h2>NHTS Data on Disabilities</h2>
+<p>Different from the previous page, this table of distributions only compares the abled population and the disabled population. This table also includes an “Overall” column which shows the distribution of the total civilian population.</p>
+<p>The variables and grouping of variables are designed to match the ACS variables (i.e. age, mode, education)</p>
+</div>
+<div id="compare-acs-with-nhts" class="section level2">
+<h2>Compare ACS with NHTS</h2>
+Note: in comparing mode choice, the NHTS distribution is of total work trips; I don’t know how ACS calculates “Commute to work”.
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
-2017 NHTS Data Distribution
+2017 NHTS Data Distribution on Ability
 </caption>
 <thead>
 <tr>
@@ -427,337 +347,75 @@ Abled
 Disabled
 </th>
 <th style="text-align:left;">
-Wheelchair
+Overall
 </th>
 </tr>
 </thead>
 <tbody>
-<tr grouplength="10">
+<tr grouplength="2">
 <td colspan="4" style="border-bottom: 1px solid;">
-<strong>Age</strong>
+<strong>Employment</strong>
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-0 - 10
+Employed
 </td>
 <td style="text-align:left;">
-7.3%
-</td>
-<td style="text-align:left;">
-1.0%
-</td>
-<td style="text-align:left;">
-1.0%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-10 - 20
-</td>
-<td style="text-align:left;">
-15.2%
-</td>
-<td style="text-align:left;">
-3.9%
-</td>
-<td style="text-align:left;">
-1.6%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-20 - 30
-</td>
-<td style="text-align:left;">
-14.5%
-</td>
-<td style="text-align:left;">
-6.6%
-</td>
-<td style="text-align:left;">
-4.4%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-30 - 40
-</td>
-<td style="text-align:left;">
-15.7%
-</td>
-<td style="text-align:left;">
-6.0%
-</td>
-<td style="text-align:left;">
-4.2%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-40 - 50
+67.4%
 </td>
 <td style="text-align:left;">
 13.5%
 </td>
 <td style="text-align:left;">
-9.2%
-</td>
-<td style="text-align:left;">
-5.3%
+62.1%
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-50 - 60
+Not in Labor Force
 </td>
 <td style="text-align:left;">
-14.0%
+32.6%
 </td>
 <td style="text-align:left;">
-20.0%
+86.5%
 </td>
 <td style="text-align:left;">
-13.0%
+37.9%
 </td>
 </tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-60 - 70
-</td>
-<td style="text-align:left;">
-12.1%
-</td>
-<td style="text-align:left;">
-23.7%
-</td>
-<td style="text-align:left;">
-25.4%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-70 - 80
-</td>
-<td style="text-align:left;">
-5.7%
-</td>
-<td style="text-align:left;">
-15.7%
-</td>
-<td style="text-align:left;">
-21.8%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-80 - 90
-</td>
-<td style="text-align:left;">
-1.7%
-</td>
-<td style="text-align:left;">
-10.4%
-</td>
-<td style="text-align:left;">
-14.5%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-90 - 100
-</td>
-<td style="text-align:left;">
-0.3%
-</td>
-<td style="text-align:left;">
-3.5%
-</td>
-<td style="text-align:left;">
-8.8%
-</td>
-</tr>
-<tr grouplength="4">
+<tr grouplength="6">
 <td colspan="4" style="border-bottom: 1px solid;">
-<strong>Income Group</strong>
+<strong>Commuting to Work</strong>
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Low
+Car/Van/Truck (Driver)
 </td>
 <td style="text-align:left;">
-17.1%
+75.1%
 </td>
 <td style="text-align:left;">
-45.2%
+55.5%
 </td>
 <td style="text-align:left;">
-47.1%
+74.8%
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Mid-Low
+Car/Van/Truck (Passenger)
 </td>
 <td style="text-align:left;">
-20.1%
+5.0%
 </td>
 <td style="text-align:left;">
-25.3%
+12.6%
 </td>
 <td style="text-align:left;">
-23.5%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Mid-High
-</td>
-<td style="text-align:left;">
-30.8%
-</td>
-<td style="text-align:left;">
-19.8%
-</td>
-<td style="text-align:left;">
-17.6%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-High
-</td>
-<td style="text-align:left;">
-32.0%
-</td>
-<td style="text-align:left;">
-9.7%
-</td>
-<td style="text-align:left;">
-11.7%
-</td>
-</tr>
-<tr grouplength="3">
-<td colspan="4" style="border-bottom: 1px solid;">
-<strong>Worker Status</strong>
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Full-Time
-</td>
-<td style="text-align:left;">
-42.0%
-</td>
-<td style="text-align:left;">
-6.2%
-</td>
-<td style="text-align:left;">
-3.0%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Part-Time
-</td>
-<td style="text-align:left;">
-11.8%
-</td>
-<td style="text-align:left;">
-6.3%
-</td>
-<td style="text-align:left;">
-1.8%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Unemployed
-</td>
-<td style="text-align:left;">
-46.2%
-</td>
-<td style="text-align:left;">
-87.5%
-</td>
-<td style="text-align:left;">
-95.2%
-</td>
-</tr>
-<tr grouplength="9">
-<td colspan="4" style="border-bottom: 1px solid;">
-<strong>Mode Choice</strong>
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Car (Driver)
-</td>
-<td style="text-align:left;">
-61.6%
-</td>
-<td style="text-align:left;">
-45.6%
-</td>
-<td style="text-align:left;">
-35.2%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Car (Passenger)
-</td>
-<td style="text-align:left;">
-10.1%
-</td>
-<td style="text-align:left;">
-15.7%
-</td>
-<td style="text-align:left;">
-17.4%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Van (Driver)
-</td>
-<td style="text-align:left;">
-4.2%
-</td>
-<td style="text-align:left;">
-3.2%
-</td>
-<td style="text-align:left;">
-4.2%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Van (Passenger)
-</td>
-<td style="text-align:left;">
-2.9%
-</td>
-<td style="text-align:left;">
-3.3%
-</td>
-<td style="text-align:left;">
-4.9%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Walk
-</td>
-<td style="text-align:left;">
-10.0%
-</td>
-<td style="text-align:left;">
-11.5%
-</td>
-<td style="text-align:left;">
-4.4%
+5.1%
 </td>
 </tr>
 <tr>
@@ -765,85 +423,38 @@ Walk
 Local Transit
 </td>
 <td style="text-align:left;">
-2.1%
+4.1%
 </td>
 <td style="text-align:left;">
-3.6%
+6.1%
 </td>
 <td style="text-align:left;">
-3.3%
+4.1%
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Paratransit
+Taxi/Motorcycle/Bike or Other
 </td>
 <td style="text-align:left;">
-0.0%
-</td>
-<td style="text-align:left;">
-0.9%
-</td>
-<td style="text-align:left;">
-2.3%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Taxi (Including Uber/Lyft)
-</td>
-<td style="text-align:left;">
-0.5%
-</td>
-<td style="text-align:left;">
-0.6%
-</td>
-<td style="text-align:left;">
-1.2%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Other
-</td>
-<td style="text-align:left;">
-8.5%
-</td>
-<td style="text-align:left;">
-15.5%
-</td>
-<td style="text-align:left;">
-27.0%
-</td>
-</tr>
-<tr grouplength="6">
-<td colspan="4" style="border-bottom: 1px solid;">
-<strong>MSA Population Size</strong>
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Less than 250,000
-</td>
-<td style="text-align:left;">
-9.0%
+4.0%
 </td>
 <td style="text-align:left;">
 9.2%
 </td>
 <td style="text-align:left;">
-9.2%
+4.1%
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-250,000 - 499,999
+Walk
 </td>
 <td style="text-align:left;">
-9.0%
+6.3%
 </td>
 <td style="text-align:left;">
-8.9%
+11.2%
 </td>
 <td style="text-align:left;">
 6.4%
@@ -851,216 +462,290 @@ Less than 250,000
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-500,000 - 999,999
+Work from Home
 </td>
 <td style="text-align:left;">
-11.9%
+5.5%
 </td>
 <td style="text-align:left;">
-11.8%
+5.4%
 </td>
 <td style="text-align:left;">
-11.7%
+5.5%
 </td>
 </tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-1,000,000 - 2,999,999
-</td>
-<td style="text-align:left;">
-20.4%
-</td>
-<td style="text-align:left;">
-21.2%
-</td>
-<td style="text-align:left;">
-21.9%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-More than 3,000,000
-</td>
-<td style="text-align:left;">
-35.6%
-</td>
-<td style="text-align:left;">
-31.5%
-</td>
-<td style="text-align:left;">
-30.5%
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Not in an MSA
-</td>
-<td style="text-align:left;">
-14.1%
-</td>
-<td style="text-align:left;">
-17.4%
-</td>
-<td style="text-align:left;">
-20.4%
-</td>
-</tr>
-<tr grouplength="7">
+<tr grouplength="4">
 <td colspan="4" style="border-bottom: 1px solid;">
-<strong>Personal Opinion of Health</strong>
+<strong>Education</strong>
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-I prefer not to answer
+Less than high school graduate
 </td>
 <td style="text-align:left;">
-0.1%
+6.6%
 </td>
 <td style="text-align:left;">
-0.0%
+16.1%
 </td>
 <td style="text-align:left;">
-0.0%
+7.5%
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-I don’t know
+High school graduate (or equivalent)
 </td>
 <td style="text-align:left;">
-0.0%
+21.4%
 </td>
 <td style="text-align:left;">
-0.1%
+33.6%
 </td>
 <td style="text-align:left;">
-0.1%
+22.6%
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Excellent
+Some college or associates degree
 </td>
 <td style="text-align:left;">
-34.8%
+29.9%
 </td>
 <td style="text-align:left;">
-3.7%
+31.0%
 </td>
 <td style="text-align:left;">
-2.6%
+30.0%
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Very good
+Bachelor’s degree or higher
 </td>
 <td style="text-align:left;">
-37.1%
+42.1%
 </td>
 <td style="text-align:left;">
-11.5%
+19.4%
 </td>
 <td style="text-align:left;">
-7.8%
+39.9%
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+2010-2018 ACS Data Distribution on Ability
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Variable
+</th>
+<th style="text-align:left;">
+Abled
+</th>
+<th style="text-align:left;">
+Disabled
+</th>
+<th style="text-align:left;">
+Overall
+</th>
+</tr>
+</thead>
+<tbody>
+<tr grouplength="2">
+<td colspan="4" style="border-bottom: 1px solid;">
+<strong>Employment</strong>
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Good
+Employed
 </td>
 <td style="text-align:left;">
-22.4%
+67.3%
 </td>
 <td style="text-align:left;">
-30.9%
+24.0%
 </td>
 <td style="text-align:left;">
-21.1%
+60.9%
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Fair
+Not in Labor
+</td>
+<td style="text-align:left;">
+29.5%
+</td>
+<td style="text-align:left;">
+76.2%
+</td>
+<td style="text-align:left;">
+35.9%
+</td>
+</tr>
+<tr grouplength="6">
+<td colspan="4" style="border-bottom: 1px solid;">
+<strong>Commuting to Work</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Car/Van/Truck (Driver)
+</td>
+<td style="text-align:left;">
+76.7%
+</td>
+<td style="text-align:left;">
+71.1%
+</td>
+<td style="text-align:left;">
+76.3%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Car/Van/Truck (Passenger)
+</td>
+<td style="text-align:left;">
+8.8%
+</td>
+<td style="text-align:left;">
+11.6%
+</td>
+<td style="text-align:left;">
+9.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Local Transit
+</td>
+<td style="text-align:left;">
+4.9%
 </td>
 <td style="text-align:left;">
 5.1%
 </td>
 <td style="text-align:left;">
-36.5%
-</td>
-<td style="text-align:left;">
-35.6%
+4.9%
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Poor
+Taxi/Motorcycle/Bike or Other
 </td>
 <td style="text-align:left;">
-0.5%
+2.5%
 </td>
 <td style="text-align:left;">
-17.4%
+3.3%
 </td>
 <td style="text-align:left;">
-32.8%
+2.5%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Walk
+</td>
+<td style="text-align:left;">
+1.8%
+</td>
+<td style="text-align:left;">
+2.7%
+</td>
+<td style="text-align:left;">
+1.9%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Work from Home
+</td>
+<td style="text-align:left;">
+5.3%
+</td>
+<td style="text-align:left;">
+6.1%
+</td>
+<td style="text-align:left;">
+5.3%
+</td>
+</tr>
+<tr grouplength="4">
+<td colspan="4" style="border-bottom: 1px solid;">
+<strong>Education</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Less than high school graduate
+</td>
+<td style="text-align:left;">
+9.8%
+</td>
+<td style="text-align:left;">
+20.0%
+</td>
+<td style="text-align:left;">
+11.5%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+High school graduate (or equivalent)
+</td>
+<td style="text-align:left;">
+25.3%
+</td>
+<td style="text-align:left;">
+33.8%
+</td>
+<td style="text-align:left;">
+26.7%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Some college or associates degree
+</td>
+<td style="text-align:left;">
+29.0%
+</td>
+<td style="text-align:left;">
+28.4%
+</td>
+<td style="text-align:left;">
+28.9%
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Bachelor’s degree or higher
+</td>
+<td style="text-align:left;">
+35.9%
+</td>
+<td style="text-align:left;">
+17.8%
+</td>
+<td style="text-align:left;">
+33.0%
 </td>
 </tr>
 </tbody>
 </table>
 </div>
-<div id="poisson-regression-of-daily-trips" class="section level2">
-<h2>Poisson Regression of Daily Trips</h2>
-<pre class="r"><code># Organize the data so that trips can be counted and zero trips can be accounted for
-
-#option to use just person attribute
-persons &lt;- read_rds(&quot;data/persons.rds&quot;)
-
-# the grid makes it possible to count zero trips
-grid &lt;- expand_grid(
-  # uses only the unique hhpersonids found in the new_trips data
-  hhpersonid = unique(my_nhts$hhpersonid), 
-  # uses only HBO, HBW, HBSOCREC, NHB, and HBSOP
-  trippurp = unique(my_nhts$trippurp)
-) %&gt;%
-  
-filter(trippurp != &quot;-9&quot;) %&gt;%
-  
-  # now join it with the trip purpose counts
-left_join(
-    my_nhts %&gt;%
-      group_by(hhpersonid, trippurp) %&gt;%
-      # count the trips by purpose for each person
-      tally() %&gt;%
-      mutate(n = ifelse(n &gt; 10, 10, n)
-         ),
-    by = c(&quot;hhpersonid&quot;, &quot;trippurp&quot;)
-) %&gt;%
-  
-# change the NAs to 0s
-mutate(n = ifelse(is.na(n), 0, n)) %&gt;%
-             
-# i need to join this with persons information then I can perform the regression
-
-# From this point there are attributes associated with each trip (length, mode).
-# so if there are trips taken then n is repeated so that each trip can have specific 
-# attribute data attached.
-# left_join(my_nhts)
-  
-left_join(persons)
-
-# note that when joined with persons you cant use variables such as trip length or mode</code></pre>
-<pre class="r"><code>fit.0 &lt;- glm(n ~ trippurp + Ability + r_age + Income + Worker, family = &quot;poisson&quot;, data = grid)</code></pre>
-</div>
-<div id="references" class="section level1 unnumbered">
-<h1>References</h1>
-<div id="refs" class="references">
-<div id="ref-Brumbaugh2018">
-<p>Brumbaugh, Stephen. 2018. “Issue BrIef Travel Patterns of American Adults with Disabilities.” US Department of Transportation. <a href="https://www.bts.gov/sites/bts.dot.gov/files/docs/explore-topics-and-geography/topics/passenger-travel/222466/travel-patterns-american-adults-disabilities-11-26-19.pdf">https://www.bts.gov/sites/bts.dot.gov/files/docs/explore-topics-and-geography/topics/passenger-travel/222466/travel-patterns-american-adults-disabilities-11-26-19.pdf</a>.</p>
-</div>
-</div>
+<div id="nhts-data-including-wheelchair-and-part-time-employment" class="section level2">
+<h2>NHTS Data including Wheelchair and Part-time Employment</h2>
 </div>
 
 

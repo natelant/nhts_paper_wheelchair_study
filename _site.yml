@@ -11,4 +11,6 @@ navbar:
       href: "03_methodology.html"
     - text: "Tour Attributes"
       href: "test_tours_and_employment.html"
+    - text: "ACS Comparison"
+      href: "comparison.html"
     
