@@ -327,10 +327,105 @@ $(document).ready(function () {
 <h2>NHTS Data on Disabilities</h2>
 <p>Different from the previous page, this table of distributions only compares the abled population and the disabled population. This table also includes an “Overall” column which shows the distribution of the total civilian population.</p>
 <p>The variables and grouping of variables are designed to match the ACS variables (i.e. age, mode, education)</p>
+<pre class="r"><code># people data for employment and education comparison
+# create column for just abled and disabled
+data &lt;- nhts_persons %&gt;% 
+  filter(r_age &gt; 16) %&gt;%
+  mutate(status = case_when( medcond == &quot;01&quot; ~ &quot;Disabled&quot;, 
+                             medcond == &quot;02&quot; ~ &quot;Abled&quot;,
+                             TRUE ~ &quot;NA&quot;),
+         Employment = case_when( worker == &quot;01&quot; ~ &quot;Employed&quot;,
+                                 worker == &quot;02&quot; ~ &quot;Not in Labor Force&quot;,
+                                 TRUE ~ &quot;NA&quot;),
+         Education = case_when( educ == &quot;01&quot; ~ &quot;Less than high school graduate&quot;,
+                           educ == &quot;02&quot; ~ &quot;High school graduate (or equivalent)&quot;,
+                           educ == &quot;03&quot; ~ &quot;Some college or associates degree&quot;,
+                           educ == &quot;04&quot; | educ == &quot;05&quot; ~ &quot;Bachelor&#39;s degree or higher&quot;,
+                           TRUE ~ &quot;NA&quot;),
+         Education = fct_relevel(Education, &quot;Less than high school graduate&quot;,
+                                 &quot;High school graduate (or equivalent)&quot;, 
+                                 &quot;Some college or associates degree&quot;,
+                                 &quot;Bachelor&#39;s degree or higher&quot;)
+         ) %&gt;%
+  filter(status != &quot;NA&quot;, 
+         Employment != &quot;NA&quot;,
+         Education != &quot;NA&quot;) 
+
+# trips data for mode choice
+trips_data &lt;- my_nhts %&gt;%
+  filter(r_age &gt; 16,
+         whyto == &quot;03&quot;) %&gt;%
+  mutate(status = case_when( medcond == &quot;01&quot; ~ &quot;Disabled&quot;, 
+                             medcond == &quot;02&quot; ~ &quot;Abled&quot;,
+                             TRUE ~ &quot;NA&quot;),
+         Employment = case_when( worker == &quot;01&quot; ~ &quot;Employed&quot;,
+                                 worker == &quot;02&quot; ~ &quot;Not in Labor Force&quot;,
+                                 TRUE ~ &quot;NA&quot;),
+         Commute = case_when(wrk_home == &quot;01&quot; ~ &quot;Work from Home&quot;,
+           
+                             psgr_flg == &quot;02&quot; &amp; trptrans == &quot;03&quot; ~ &quot;Car/Van/Truck (Driver)&quot;,
+                             psgr_flg == &quot;02&quot; &amp; trptrans == &quot;04&quot; ~ &quot;Car/Van/Truck (Driver)&quot;,
+                             psgr_flg == &quot;02&quot; &amp; trptrans == &quot;05&quot; ~ &quot;Car/Van/Truck (Driver)&quot;,
+                             psgr_flg == &quot;02&quot; &amp; trptrans == &quot;06&quot; ~ &quot;Car/Van/Truck (Driver)&quot;,
+                             # 
+                             psgr_flg == &quot;01&quot; &amp; trptrans == &quot;03&quot; ~ &quot;Car/Van/Truck (Passenger)&quot;,
+                             psgr_flg == &quot;01&quot; &amp; trptrans == &quot;04&quot; ~ &quot;Car/Van/Truck (Passenger)&quot;,
+                             psgr_flg == &quot;01&quot; &amp; trptrans == &quot;05&quot; ~ &quot;Car/Van/Truck (Passenger)&quot;,
+                             psgr_flg == &quot;01&quot; &amp; trptrans == &quot;06&quot; ~ &quot;Car/Van/Truck (Passenger)&quot;,
+                            
+                             trptrans == &quot;01&quot; ~ &quot;Walk&quot;,
+                             
+                             trptrans == &quot;11&quot; | trptrans == &quot;16&quot;  ~ &quot;Local Transit&quot;,
+                             
+                             TRUE  ~ &quot;Taxi/Motorcycle/Bike or Other&quot;
+                     )) %&gt;%
+  filter(status != &quot;NA&quot;)</code></pre>
+<pre class="r"><code># Build funciton to create distribution table that includes the total distribution
+
+build_table &lt;- function(data, variable){
+  
+  quote_var &lt;- enquo(variable)
+  
+  # calulate statistics from the data
+data %&gt;%
+  group_by(status, !!quote_var) %&gt;%
+  summarise(population = sum(wtperfin)) %&gt;%
+  mutate(distribution = percent(population/sum(population), accuracy = 0.1),
+         Variable = as.factor(!!quote_var)) %&gt;%
+  select(status, Variable, distribution) %&gt;%
+  spread(status, distribution) %&gt;%
+  
+  left_join(
+    data %&gt;% 
+      group_by(!!quote_var) %&gt;%
+      summarise(population = sum(wtperfin)) %&gt;%
+      mutate(Overall = percent(population/sum(population), accuracy = 0.1),
+             Variable = as.factor(!!quote_var)) %&gt;%
+      select(-population, -!!quote_var),
+    by = c(&quot;Variable&quot;)
+  )
+}</code></pre>
 </div>
 <div id="compare-acs-with-nhts" class="section level2">
 <h2>Compare ACS with NHTS</h2>
-Note: in comparing mode choice, the NHTS distribution is of total work trips; I don’t know how ACS calculates “Commute to work”.
+<p>Note: in comparing mode choice, the NHTS distribution is of total work trips; I don’t know how ACS calculates “Commute to work”.</p>
+<pre class="r"><code># Building the NHTS distribution table
+emp &lt;- build_table(data, Employment) 
+#this is percentage of total trips
+comm &lt;- build_table(trips_data, Commute) 
+
+edu &lt;- build_table(data, Education) 
+
+Stack(emp, comm) %&gt;% Stack(edu) %&gt;%
+  
+  
+  # pipe into the kable function
+  kable(caption = &quot;2017 NHTS Data Distribution on Ability&quot;) %&gt;%
+  kable_styling(&quot;striped&quot;, full_width = F) %&gt;%
+  # Specify which row numbers are grouped together (i.e. from 1, to 10)
+  pack_rows(&quot;Employment&quot;, 1, 2) %&gt;%
+  pack_rows(&quot;Commuting to Work&quot;, 3, 8) %&gt;%
+  pack_rows(&quot;Education&quot;, 9, 12) </code></pre>
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 2017 NHTS Data Distribution on Ability
@@ -537,6 +632,42 @@ Bachelor’s degree or higher
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>#=======================================================================
+
+# building the ACS distribution
+emp_acs &lt;- tibble(
+  Variable = c(&quot;Employed&quot;, &quot;Not in Labor Force&quot;),
+  ACS_Abled = percent(c(0.673, 0.295)),
+  ACS_Disabled = percent(c(0.24, 0.762)),
+  ACS_Overall = percent(c(0.609, 0.359))
+)
+
+comm_acs &lt;- tibble(
+  Variable = c(&quot;Car/Van/Truck (Driver)&quot;, &quot;Car/Van/Truck (Passenger)&quot;, &quot;Local Transit&quot;, 
+               &quot;Taxi/Motorcycle/Bike or Other&quot;, &quot;Walk&quot;, &quot;Work from Home&quot;),
+  Abled = percent(c(0.767, 0.088, 0.049, 0.025, 0.018, 0.053)),
+  Disabled = percent(c(.711, .116, .051, .033, .027, .061)),
+  Overall = percent(c(0.763, 0.09, 0.049, 0.025, 0.019, 0.053))
+)
+
+edu_acs &lt;- tibble(
+  Variable = c(&quot;Less than high school graduate&quot;, &quot;High school graduate (or equivalent)&quot;, 
+               &quot;Some college or associates degree&quot;, &quot;Bachelor&#39;s degree or higher&quot;),
+  Abled = percent(c(0.098, 0.253, 0.29, .359)),
+  Disabled = percent(c(0.20, 0.338, .284, .178)),
+  Overall = percent(c(.115, 0.267, 0.289, .33))
+)
+
+Stack(emp_acs, comm_acs) %&gt;% Stack(edu_acs) %&gt;%
+  
+  
+  # pipe into the kable function
+  kable(caption = &quot;2010-2018 ACS Data Distribution on Ability&quot;) %&gt;%
+  kable_styling(&quot;striped&quot;, full_width = F) %&gt;%
+  # Specify which row numbers are grouped together (i.e. from 1, to 10)
+  pack_rows(&quot;Employment&quot;, 1, 2) %&gt;%
+  pack_rows(&quot;Commuting to Work&quot;, 3, 8) %&gt;%
+  pack_rows(&quot;Education&quot;, 9, 12) </code></pre>
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 2010-2018 ACS Data Distribution on Ability
@@ -555,17 +686,35 @@ Disabled
 <th style="text-align:left;">
 Overall
 </th>
+<th style="text-align:left;">
+ACS_Abled
+</th>
+<th style="text-align:left;">
+ACS_Disabled
+</th>
+<th style="text-align:left;">
+ACS_Overall
+</th>
 </tr>
 </thead>
 <tbody>
 <tr grouplength="2">
-<td colspan="4" style="border-bottom: 1px solid;">
+<td colspan="7" style="border-bottom: 1px solid;">
 <strong>Employment</strong>
 </td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
 Employed
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
 </td>
 <td style="text-align:left;">
 67.3%
@@ -579,7 +728,16 @@ Employed
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
-Not in Labor
+Not in Labor Force
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
 </td>
 <td style="text-align:left;">
 29.5%
@@ -592,7 +750,7 @@ Not in Labor
 </td>
 </tr>
 <tr grouplength="6">
-<td colspan="4" style="border-bottom: 1px solid;">
+<td colspan="7" style="border-bottom: 1px solid;">
 <strong>Commuting to Work</strong>
 </td>
 </tr>
@@ -609,6 +767,15 @@ Car/Van/Truck (Driver)
 <td style="text-align:left;">
 76.3%
 </td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
@@ -622,6 +789,15 @@ Car/Van/Truck (Passenger)
 </td>
 <td style="text-align:left;">
 9.0%
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
 </td>
 </tr>
 <tr>
@@ -637,6 +813,15 @@ Local Transit
 <td style="text-align:left;">
 4.9%
 </td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
@@ -650,6 +835,15 @@ Taxi/Motorcycle/Bike or Other
 </td>
 <td style="text-align:left;">
 2.5%
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
 </td>
 </tr>
 <tr>
@@ -665,6 +859,15 @@ Walk
 <td style="text-align:left;">
 1.9%
 </td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
@@ -679,9 +882,18 @@ Work from Home
 <td style="text-align:left;">
 5.3%
 </td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
 <tr grouplength="4">
-<td colspan="4" style="border-bottom: 1px solid;">
+<td colspan="7" style="border-bottom: 1px solid;">
 <strong>Education</strong>
 </td>
 </tr>
@@ -698,6 +910,15 @@ Less than high school graduate
 <td style="text-align:left;">
 11.5%
 </td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
@@ -711,6 +932,15 @@ High school graduate (or equivalent)
 </td>
 <td style="text-align:left;">
 26.7%
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
 </td>
 </tr>
 <tr>
@@ -726,6 +956,15 @@ Some college or associates degree
 <td style="text-align:left;">
 28.9%
 </td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
 <tr>
 <td style="text-align:left; padding-left: 2em;" indentlevel="1">
@@ -740,12 +979,18 @@ Bachelor’s degree or higher
 <td style="text-align:left;">
 33.0%
 </td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div id="nhts-data-including-wheelchair-and-part-time-employment" class="section level2">
-<h2>NHTS Data including Wheelchair and Part-time Employment</h2>
 </div>
 
 

@@ -180,7 +180,7 @@ edu_acs <- tibble(
   Overall = percent(c(.115, 0.267, 0.289, .33))
 )
 
-Stack(emp_acs, comm_acs) %>% Stack(edu_acs)
+Stack(emp_acs, comm_acs) %>% Stack(edu_acs) %>%
   
   
   # pipe into the kable function
@@ -194,4 +194,4 @@ Stack(emp_acs, comm_acs) %>% Stack(edu_acs)
 
 ```
 
-## NHTS Data including Wheelchair and Part-time Employment
+

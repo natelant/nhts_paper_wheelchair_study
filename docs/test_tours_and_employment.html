@@ -22,6 +22,7 @@
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
@@ -246,6 +247,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -297,6 +301,14 @@ $(document).ready(function () {
 
 <div class="fluid-row" id="header">
 
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">Trips, Activities, and Tours</h1>
@@ -313,6 +325,13 @@ $(document).ready(function () {
 <li><p>people ages 18-65</p></li>
 <li><p>MSA size 1,000,000 - 2,999,999</p></li>
 </ul>
+<pre class="r"><code># trips edited comes from joining the persons file with trips. Includes individuals with 0 trips
+trips_print &lt;- trips_edited %&gt;%
+  select(houseid, personid, strttime, endtime, whyfrom, whyto)
+
+trips_print %&gt;% 
+  head(n = 5) %&gt;% 
+  formattable::formattable()</code></pre>
 <table class="table table-condensed">
 <thead>
 <tr>
@@ -443,6 +462,13 @@ whyto
 <div id="activities" class="section level1">
 <h1>Activities</h1>
 <p>Each trip goes from one activity to the next. By manipulating the data set, we can create a list of activities based on the purpose and duration of each trip using <code>build_activities</code>.</p>
+<pre class="r"><code>activities_print &lt;- trips_print %&gt;% 
+  filter(houseid %in% c(&quot;30000301&quot;, &quot;30000309&quot;, &quot;30000312&quot;)) %&gt;%
+  build_activities()
+
+activities_print %&gt;% 
+  head(n= 5) %&gt;% 
+  formattable::formattable()</code></pre>
 <table class="table table-condensed">
 <thead>
 <tr>
@@ -573,6 +599,11 @@ depart
 <div id="activities-with-tour-attributes" class="section level1">
 <h1>Activities with Tour Attributes</h1>
 <p>Using the function <code>add_tour()</code> each activity can be assigned to a daily activity pattern (DAP) which describes the type of tour or group of tours a person makes during the day. A tour is a collection of activities from when you leave home to when you return home. Often, people take more than one tour per day. Tours are classified as Mandatory (work or school), Non-Mandatory, and Home. For the purpose here, we label each tour as “W” for work, “S” for school, and “NM” for non-mandatory (everything else). Home trips will show up as NA for now.</p>
+<pre class="r"><code>myactivities %&gt;% 
+  select(houseid, personid, activity, activity_number, arrive, 
+         depart, tour_count, tour_class, DAP) %&gt;%
+  head(n=5) %&gt;% 
+  formattable::formattable()</code></pre>
 <table class="table table-condensed">
 <thead>
 <tr>
@@ -757,6 +788,9 @@ NM
 <div id="tours" class="section level1">
 <h1>Tours</h1>
 <p>Using the <code>build_tours()</code> function, a list of activities can be converted into tours–which is the same list of persons.</p>
+<pre class="r"><code>mytours %&gt;%
+  head(n=5) %&gt;% 
+  formattable::formattable()</code></pre>
 <table class="table table-condensed">
 <thead>
 <tr>
@@ -1030,6 +1064,10 @@ W_1
 <div id="distribution-of-dap" class="section level2">
 <h2>Distribution of DAP</h2>
 <p>What kinds of daily activity patterns (DAP) are being made by people with disabilities?</p>
+<pre class="r"><code># Distribution table (percent of persons)
+mytours %&gt;% 
+  distributions(DAP) %&gt;% 
+  pander(caption = &quot;Daily Tours (List of Persons)&quot;)</code></pre>
 <table style="width:60%;">
 <caption>Daily Tours (List of Persons)</caption>
 <colgroup>
@@ -1085,6 +1123,9 @@ W_1
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>myactivities %&gt;% 
+  distributions(DAP) %&gt;% 
+  pander(caption = &quot;Daily Activities (List of Activities)&quot;)</code></pre>
 <table style="width:60%;">
 <caption>Daily Activities (List of Activities)</caption>
 <colgroup>
@@ -1141,6 +1182,138 @@ W_1
 </tbody>
 </table>
 </div>
+<div id="estimated-population-and-counts-of-dap-groups" class="section level2">
+<h2>Estimated Population and Counts of DAP Groups</h2>
+<p>This table shows the same distribution but of total counts <em>from the list of persons NOT activities</em>. The total number of persons is 23,906 in this set. This data has been filtered by age and by MSA size, as described previously. Using the weighted population estimates in the NHTS data, the probable total population has been summed in each group.</p>
+<pre class="r"><code># this calculates the population in each group, based on the tour distribution
+mytours %&gt;%
+  filter(Ability != &quot;NA&quot;, 
+         DAP != &quot;NA&quot;) %&gt;%
+    # Calculate number of people in each combination of dap and ability.
+    group_by(Ability, DAP) %&gt;%
+    summarise(population = sum(wtperfin)) %&gt;%
+    spread(Ability, population) %&gt;%
+  pander(caption = &quot;Population of Each DAP Group&quot;)</code></pre>
+<table style="width:57%;">
+<caption>Population of Each DAP Group</caption>
+<colgroup>
+<col width="8%" />
+<col width="15%" />
+<col width="15%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">DAP</th>
+<th align="center">Abled</th>
+<th align="center">Disabled</th>
+<th align="center">Wheelchair</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">H</td>
+<td align="center">4404471</td>
+<td align="center">684276</td>
+<td align="center">202046</td>
+</tr>
+<tr class="even">
+<td align="center">NM</td>
+<td align="center">13616138</td>
+<td align="center">1380805</td>
+<td align="center">182702</td>
+</tr>
+<tr class="odd">
+<td align="center">S_1</td>
+<td align="center">584106</td>
+<td align="center">30303</td>
+<td align="center">2585</td>
+</tr>
+<tr class="even">
+<td align="center">S_2</td>
+<td align="center">38142</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+</tr>
+<tr class="odd">
+<td align="center">W_1</td>
+<td align="center">16697755</td>
+<td align="center">347707</td>
+<td align="center">6002</td>
+</tr>
+<tr class="even">
+<td align="center">W_2</td>
+<td align="center">1408787</td>
+<td align="center">32811</td>
+<td align="center">36.47</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># this calculates the frequency of each DAP from each group
+mytours %&gt;%
+  filter(Ability != &quot;NA&quot;, 
+         DAP != &quot;NA&quot;) %&gt;%
+    # Calculate number of people in each combination of dap and ability.
+    group_by(Ability, DAP) %&gt;%
+    summarise(Frequency = n()) %&gt;%
+    spread(Ability, Frequency) %&gt;%
+  pander(caption = &quot;Frequency of DAPs from NHTS Survey Respondents&quot;)</code></pre>
+<table style="width:53%;">
+<caption>Frequency of DAPs from NHTS Survey Respondents</caption>
+<colgroup>
+<col width="8%" />
+<col width="11%" />
+<col width="15%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">DAP</th>
+<th align="center">Abled</th>
+<th align="center">Disabled</th>
+<th align="center">Wheelchair</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">H</td>
+<td align="center">2562</td>
+<td align="center">385</td>
+<td align="center">97</td>
+</tr>
+<tr class="even">
+<td align="center">NM</td>
+<td align="center">8476</td>
+<td align="center">686</td>
+<td align="center">98</td>
+</tr>
+<tr class="odd">
+<td align="center">S_1</td>
+<td align="center">296</td>
+<td align="center">13</td>
+<td align="center">2</td>
+</tr>
+<tr class="even">
+<td align="center">S_2</td>
+<td align="center">16</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+</tr>
+<tr class="odd">
+<td align="center">W_1</td>
+<td align="center">10382</td>
+<td align="center">165</td>
+<td align="center">13</td>
+</tr>
+<tr class="even">
+<td align="center">W_2</td>
+<td align="center">703</td>
+<td align="center">11</td>
+<td align="center">1</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 
 
@@ -1176,6 +1349,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
