@@ -2,8 +2,9 @@
 title: "Trips, Activities, and Tours"
 author: "Nate Lant"
 date: "2/7/2020"
-output:
-  html_document: default
+output: 
+  html_document:
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -48,7 +49,7 @@ take any trips). In this data set, we will filter the number of trips by
 
 * MSA size 1,000,000 - 2,999,999
 
-```{r trips.data, echo=F, message=F, warning=F}
+```{r trips.data, message=F, warning=F}
 # trips edited comes from joining the persons file with trips. Includes individuals with 0 trips
 trips_print <- trips_edited %>%
   select(houseid, personid, strttime, endtime, whyfrom, whyto)
@@ -63,7 +64,7 @@ trips_print %>%
 Each trip goes from one activity to the next. By manipulating the data set, we can create a list of
 activities based on the purpose and duration of each trip using `build_activities`.
 
-```{r activities.data, echo=F, message=F, warning=F}
+```{r activities.data, message=F, warning=F}
 activities_print <- trips_print %>% 
   filter(houseid %in% c("30000301", "30000309", "30000312")) %>%
   build_activities()
@@ -81,7 +82,7 @@ take more than one tour per day. Tours are classified as Mandatory (work or scho
 and Home. For the purpose here, we label each tour as "W" for work, "S" for school, and "NM" for
 non-mandatory (everything else). Home trips will show up as NA for now.
 
-```{r tours.data, echo=F, message=F, warning=F}
+```{r tours.data, message=F, warning=F}
 myactivities %>% 
   select(houseid, personid, activity, activity_number, arrive, 
          depart, tour_count, tour_class, DAP) %>%
@@ -91,7 +92,7 @@ myactivities %>%
 
 # Tours
 Using the `build_tours()` function, a list of activities can be converted into tours--which is the same list of persons.
-```{r tours, echo=F, message=F, warning=F}
+```{r tours, message=F, warning=F}
 mytours %>%
   head(n=5) %>% 
   formattable::formattable()
@@ -101,7 +102,7 @@ mytours %>%
 ## Distribution of DAP
 What kinds of daily activity patterns (DAP) are being made by people with disabilities?
 
-```{r distribution.tourclass, echo=F, warning=F, message=F}
+```{r distribution.tourclass,  warning=F, message=F}
 # Distribution table (percent of persons)
 mytours %>% 
   distributions(DAP) %>% 
@@ -110,6 +111,36 @@ mytours %>%
 myactivities %>% 
   distributions(DAP) %>% 
   pander(caption = "Daily Activities (List of Activities)")
+
+```
+
+## Estimated Population and Counts of DAP Groups
+
+This table shows the same distribution but of total counts *from the list of persons NOT activities*. 
+The total number of persons is 23,906 in 
+this set. This data has been filtered by age and by MSA size, as described previously. Using the 
+weighted population estimates in the NHTS data, the probable total population has been summed in each group.
+
+```{r counts, warning=F, message=F}
+# this calculates the population in each group, based on the tour distribution
+mytours %>%
+  filter(Ability != "NA", 
+         DAP != "NA") %>%
+    # Calculate number of people in each combination of dap and ability.
+    group_by(Ability, DAP) %>%
+    summarise(population = sum(wtperfin)) %>%
+    spread(Ability, population) %>%
+  pander(caption = "Population of Each DAP Group")
+
+# this calculates the frequency of each DAP from each group
+mytours %>%
+  filter(Ability != "NA", 
+         DAP != "NA") %>%
+    # Calculate number of people in each combination of dap and ability.
+    group_by(Ability, DAP) %>%
+    summarise(Frequency = n()) %>%
+    spread(Ability, Frequency) %>%
+  pander(caption = "Frequency of DAPs from NHTS Survey Respondents")
 
 ```
 

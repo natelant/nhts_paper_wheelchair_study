@@ -42,7 +42,7 @@ civilian population.
 
 The variables and grouping of variables are designed to match the ACS variables (i.e. age, mode, education)
 
-```{r mutate.data, echo=F}
+```{r mutate.data}
 # people data for employment and education comparison
 # create column for just abled and disabled
 data <- nhts_persons %>% 
@@ -99,7 +99,7 @@ trips_data <- my_nhts %>%
   
 ```
 
-```{r function.data, echo=F}
+```{r function.data}
 
 # Build funciton to create distribution table that includes the total distribution
 
@@ -131,12 +131,13 @@ data %>%
 ## Compare ACS with NHTS
 Note: in comparing mode choice, the NHTS distribution is of total work trips; I don't know how ACS calculates "Commute
 to work".
-```{r comparison.table, echo=F, warning=F, message=F}
+```{r comparison.table, warning=F, message=F}
 # Building the NHTS distribution table
-emp <- build_table(data, Employment)
+emp <- build_table(data, Employment) 
 #this is percentage of total trips
-comm <- build_table(trips_data, Commute)
-edu <- build_table(data, Education)
+comm <- build_table(trips_data, Commute) 
+
+edu <- build_table(data, Education) 
 
 Stack(emp, comm) %>% Stack(edu) %>%
   
@@ -151,16 +152,16 @@ Stack(emp, comm) %>% Stack(edu) %>%
 
 ```
 
-```{r acs, echo=F, message=F, warning=F}
+```{r acs, message=F, warning=F}
 
 #=======================================================================
 
 # building the ACS distribution
 emp_acs <- tibble(
-  Variable = c("Employed", "Not in Labor"),
-  Abled = percent(c(0.673, 0.295)),
-  Disabled = percent(c(0.24, 0.762)),
-  Overall = percent(c(0.609, 0.359))
+  Variable = c("Employed", "Not in Labor Force"),
+  ACS_Abled = percent(c(0.673, 0.295)),
+  ACS_Disabled = percent(c(0.24, 0.762)),
+  ACS_Overall = percent(c(0.609, 0.359))
 )
 
 comm_acs <- tibble(
@@ -179,7 +180,7 @@ edu_acs <- tibble(
   Overall = percent(c(.115, 0.267, 0.289, .33))
 )
 
-Stack(emp_acs, comm_acs) %>% Stack(edu_acs) %>%
+Stack(emp_acs, comm_acs) %>% Stack(edu_acs)
   
   
   # pipe into the kable function
