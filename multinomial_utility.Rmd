@@ -1,0 +1,72 @@
+---
+title: "DAP Utility Function - Multinomial Logit Model"
+author: "Nate Lant"
+date: "2/26/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(nhts2017)
+library(tidyverse)
+```
+
+## Data Organization
+The list of persons will be filtered by person type.
+* (FW) Full-time worker
+* (PW) Part-time worker
+* (US) University Student - Claims their educational attainment is higher than high school degree and confirmed their student status as yes.
+* (NW) Non-working adult
+* (RT) Retired
+* (SD) Driving age schoolchild
+* (SP) Pre-driving age schoolchild
+* (PS) Pre-school child
+* *(WW) Worker with wheelchair* - responded they use a motorized scooter or a manual or mechanical wheelchair and that they are a worker.
+* *(WN) Non-worker with wheelchair*
+
+### Labeling Each Person
+Each person needs to have the attributes age, gender, auto ownership, and income.
+
+```{r create.data, echo=F}
+my_persons <- nhts_persons %>%
+  mutate(wheelchair_status = 
+           case_when(
+             #wheelchair or non-wheelchair status
+             w_chair == "07" | w_mtrchr == "08" | w_scootr == "06" ~ T,
+             TRUE ~ F
+             ),
+         #broken....
+         university_status = 
+           case_when(
+             educ == "03" & schtyp == "01" ~ T,
+             educ == "04" & schtyp == "01" ~ T,
+             educ == "05" & schtyp == "01" ~ T,
+             TRUE ~ F
+           ),
+         person_type = 
+           case_when(
+             wheelchair_status == T & worker == "01" ~ "WW",
+             wheelchair_status == T & worker == "02" ~ "WN",
+             university_status == T ~ "US",
+             wkftpt == "01" ~ "FW",
+             wkftpt == "02" ~ "PW",
+             prmact == "06" ~ "RT",
+             r_age >= 18 & worker == "02" ~ "NW", 
+             r_age < 18 & r_age >= 16 & schtyp == "01" ~ "SD",
+             r_age < 16 & r_age >= 5 & schtyp == "01" ~ "SP",
+             r_age < 5 ~ "PS"
+             ),
+         # relevel the factors
+         person_type = fct_relevel(person_type, 
+                                   "FW", "PW", "US", "NW", "RT", "SD", "SP", "PS", "WW", "WN")
+           ) 
+
+my_persons %>%
+  group_by(person_type) %>%
+  summarise(count = n())
+         
+
+```
